@@ -222,27 +222,34 @@ export default function Page() {
       </a>
 
       {/* Header — fixed; transparent at top over hero, solid white after scroll */}
-     <header
+    <header
   className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
     scrolled ? "bg-white/95 backdrop-blur shadow-sm" : "bg-transparent"
   }`}
 >
-  <div className="flex items-center justify-between max-w-[1200px] mx-auto h-24 px-4 md:px-6">
-    
-    {/* Logo & ISO */}
-    <div className="flex flex-col items-start gap-1">
-      <img src="/logo.png" alt="Logo" className="h-16 w-auto"/>
-      <span className={`px-4 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors duration-300 ${
-        scrolled ? "bg-[#1f4e79] text-white" : "bg-[#1f4e79] text-white"
-      }`}>
-        AN ISO 9001 : 2015 CERTIFIED COMPANY
-      </span>
-    </div>
+  {/* Full-width row (no max-w here) */}
+  <div className="grid grid-cols-[auto_1fr_auto] items-center h-24 w-full">
 
-    {/* Desktop Navigation */}
-    <nav className={`hidden lg:flex items-center gap-6 text-[15px] relative transition-colors duration-300 ${
-      scrolled ? "text-black" : "text-white"
-    }`}>
+    {/* Logo & ISO — truly left (no container padding) */}
+    {/* Logo & ISO — slight right offset */}
+<div className="pl-4 sm:pl-6 md:pl-8 flex flex-col items-start gap-1">
+  <a href="#home" aria-label="VMS Home" className="block">
+    <img src="/logo.png" alt="Logo" className="h-16 w-auto" />
+  </a>
+  <span className="px-4 py-1 rounded-full text-xs font-medium bg-[#1f4e79] text-white">
+    AN ISO 9001 : 2015 CERTIFIED COMPANY
+  </span>
+</div>
+
+
+    {/* spacer column */}
+    <div />
+
+    {/* Desktop Navigation (constrained, right-aligned) */}
+    <nav
+      className={`hidden lg:flex items-center gap-6 justify-end pr-4 md:pr-6 max-w-[1200px] w-full ml-auto
+        ${scrolled ? "text-black" : "text-white"} transition-colors duration-300`}
+    >
       <a href="#home" className="hover:text-gray-500 rounded">Home</a>
       <a href="#about" className="hover:text-gray-500 rounded">About Us</a>
 
@@ -264,8 +271,8 @@ export default function Page() {
               "Electronics & Navigational Supplies",
               "Medical Stores",
               "Water Treatment Systems",
-              "Other Supplies"
-            ].map(item => (
+              "Other Supplies",
+            ].map((item) => (
               <li key={item} className="px-4 py-1 hover:bg-gray-100 rounded whitespace-nowrap">
                 <a href="#products">{item}</a>
               </li>
@@ -291,8 +298,8 @@ export default function Page() {
               "Ship Propulsion and Performance Optimization",
               "Fleet Management and Consultancy",
               "Crew Training and Support",
-              "Miscellaneous Services"
-            ].map(item => (
+              "Miscellaneous Services",
+            ].map((item) => (
               <li key={item} className="px-4 py-1 hover:bg-gray-100 rounded whitespace-nowrap">
                 <a href="#services">{item}</a>
               </li>
@@ -307,9 +314,9 @@ export default function Page() {
       <a href="#cta" className="hover:text-gray-500 rounded">Contact Us</a>
     </nav>
 
-    {/* Mobile menu toggle */}
+    {/* Mobile menu toggle (right) */}
     <button
-      className="lg:hidden p-2 rounded"
+      className="lg:hidden justify-self-end p-2 mr-4 md:mr-6 rounded"
       aria-expanded={menuOpen}
       aria-controls="mnav"
       aria-label="Open menu"
@@ -343,9 +350,11 @@ export default function Page() {
             "Electronics & Navigational Supplies",
             "Medical Stores",
             "Water Treatment Systems",
-            "Other Supplies"
-          ].map(item => (
-            <a key={item} href="#products" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>{item}</a>
+            "Other Supplies",
+          ].map((item) => (
+            <a key={item} href="#products" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>
+              {item}
+            </a>
           ))}
         </div>
       </details>
@@ -365,9 +374,11 @@ export default function Page() {
             "Ship Propulsion and Performance Optimization",
             "Fleet Management and Consultancy",
             "Crew Training and Support",
-            "Miscellaneous Services"
-          ].map(item => (
-            <a key={item} href="#services" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>{item}</a>
+            "Miscellaneous Services",
+          ].map((item) => (
+            <a key={item} href="#services" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>
+              {item}
+            </a>
           ))}
         </div>
       </details>
@@ -379,6 +390,7 @@ export default function Page() {
     </div>
   </div>
 </header>
+
 
 
 
