@@ -1,5 +1,6 @@
 "use client";
 
+import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 
 type Slide = { src: string; alt?: string };
@@ -24,6 +25,15 @@ export default function Page() {
   // --------- Mobile menu ----------
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // --------- Header: transparent over hero → white after scroll ----------
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   // --------- Hero config from admin (/api/hero) ----------
   const [cfg, setCfg] = useState<HeroConfig>(DEFAULT_CFG);
   const [imgVersion, setImgVersion] = useState<number>(Date.now());
@@ -33,32 +43,30 @@ export default function Page() {
     const text = await res.text();
     const ct = res.headers.get("content-type") || "";
     if (!res.ok) throw new Error(text || `${res.status} ${res.statusText}`);
-    if (!ct.includes("application/json")) throw new Error("API did not return JSON:\n" + text.slice(0, 200));
+    if (!ct.includes("application/json"))
+      throw new Error("API did not return JSON:\n" + text.slice(0, 200));
     return JSON.parse(text);
   };
 
   const loadHero = async () => {
     try {
       const data = await fetchJson("/api/hero");
-
-      // Backward compatibility: if admin provides heroImage only
       const slides: Slide[] = Array.isArray(data?.slides)
         ? data.slides
         : data?.heroImage
         ? [{ src: data.heroImage }]
         : [];
-
       const merged: HeroConfig = {
         title: typeof data?.title === "string" ? data.title : DEFAULT_CFG.title,
-        subtitle: typeof data?.subtitle === "string" ? data.subtitle : DEFAULT_CFG.subtitle,
+        subtitle:
+          typeof data?.subtitle === "string" ? data.subtitle : DEFAULT_CFG.subtitle,
         slides,
         button1: { ...DEFAULT_CFG.button1, ...(data?.button1 || {}) },
         button2: { ...DEFAULT_CFG.button2, ...(data?.button2 || {}) },
       };
       setCfg(merged);
-      setImgVersion(Date.now()); // cache-bust <img>
+      setImgVersion(Date.now()); // cache-bust images
     } catch {
-      // keep defaults
       setCfg((p) => ({ ...DEFAULT_CFG, slides: p.slides.length ? p.slides : DEFAULT_CFG.slides }));
     }
   };
@@ -83,7 +91,7 @@ export default function Page() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // --------- Horizontal carousels (products/services) ----------
+  // --------- Horizontal carousels ----------
   const scrollByStep = (query: string, dir: number) => {
     const track = document.querySelector<HTMLElement>(query);
     if (!track) return;
@@ -102,13 +110,17 @@ export default function Page() {
     e.preventDefault();
     const form = formRef.current!;
     let ok = true;
-    const requiredInputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("[name][required]");
+    const requiredInputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+      "[name][required]"
+    );
     requiredInputs.forEach((inp) => {
       const wrap = inp.closest("label");
       const err = wrap?.querySelector<HTMLElement>(".error");
       let valid = inp.value.trim().length > 0;
-      if (inp.getAttribute("name") === "email") valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value);
-      if (inp.getAttribute("name") === "phone") valid = /[0-9]{8,}/.test(inp.value.replace(/\D/g, ""));
+      if (inp.getAttribute("name") === "email")
+        valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value);
+      if (inp.getAttribute("name") === "phone")
+        valid = /[0-9]{8,}/.test(inp.value.replace(/\D/g, ""));
       if (!valid) ok = false;
       if (err) err?.classList.toggle("hidden", valid);
     });
@@ -120,10 +132,6 @@ export default function Page() {
     form.reset();
   };
 
-  // --------- Chips (marquee) ----------
-  const chips = ["Ports", "24×7", "SOLAS", "Partners", "Ready stock", "Ports", "24×7"];
-  const marqueeChips = [...chips, ...chips];
-
   // --------- HERO background slides (manual + AUTO scroll) ----------
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [heroIndex, setHeroIndex] = useState(0);
@@ -131,7 +139,7 @@ export default function Page() {
   const scrollHero = (dir: -1 | 1) => {
     const el = trackRef.current;
     if (!el) return;
-    const step = el.clientWidth; // one viewport width
+    const step = el.clientWidth;
     el.scrollBy({ left: dir * step, behavior: "smooth" });
   };
 
@@ -142,7 +150,6 @@ export default function Page() {
     el.scrollTo({ left: i * step, behavior: "smooth" });
   };
 
-  // keep heroIndex in sync with scroll
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
@@ -154,7 +161,6 @@ export default function Page() {
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
-  // realign on resize so dots/arrows stay correct
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
@@ -166,7 +172,6 @@ export default function Page() {
     return () => window.removeEventListener("resize", onResize);
   }, [heroIndex]);
 
-  // ✅ Autoplay: start immediately on first paint, then every 6s (no pause/visibility checks)
   useEffect(() => {
     const el = trackRef.current;
     const total = cfg.slides?.length ?? 0;
@@ -179,10 +184,7 @@ export default function Page() {
       el.scrollTo({ left: next * w, behavior: "smooth" });
     };
 
-    // Kick immediately
     const rafId = requestAnimationFrame(stepOnce);
-
-    // Then every 6s
     const intervalId = setInterval(stepOnce, 6000);
 
     return () => {
@@ -191,8 +193,26 @@ export default function Page() {
     };
   }, [cfg.slides.length]);
 
+  // --------- Marquee content ----------
+  const marqueeItems = [
+    "Registered Supplier on the Government e-Marketplace (GeM)",
+    "Approved Vendor for Ministry of Defence",
+    "Authorized Distributor for GOA PAINTS Brand",
+  ];
+  const marqueeDup = [...marqueeItems, ...marqueeItems];
+
   return (
     <>
+      {/* Load Roboto */}
+      <Head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
+
       {/* Skip link */}
       <a
         href="#main"
@@ -201,16 +221,27 @@ export default function Page() {
         Skip to content
       </a>
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur shadow-sm">
-        <div className="mx-auto max-w-[1200px] px-4 md:px-6 h-24 flex items-center gap-6">
+      {/* Header — fixed; transparent at top over hero, solid white after scroll */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
+          scrolled ? "bg-white/95 backdrop-blur shadow-sm" : "bg-transparent"
+        }`}
+      >
+        <div
+          className={`mx-auto max-w-[1200px] px-4 md:px-6 h-24 flex items-center gap-6 ${
+            scrolled ? "text-[#0a1a2f]" : "text-white"
+          }`}
+        >
           <div className="flex items-center gap-3">
-            <div className="w-20 h-12 rounded-xl bg-[#0a1a2f] grid place-items-center text-white font-semibold">VMS</div>
+            <div className="w-20 h-12 rounded-xl bg-[#0a1a2f] grid place-items-center text-white font-semibold">
+              VMS
+            </div>
             <div className="hidden md:flex items-center gap-2">
               <span className="text-white bg-[#1f4e79] px-3 py-1 rounded-full text-xs">ISO 9001:2015</span>
               <span className="text-white bg-[#1f4e79] px-3 py-1 rounded-full text-xs">Indian Navy Vendor</span>
             </div>
           </div>
+
           <nav aria-label="Primary" className="hidden lg:flex ml-auto items-center gap-6 text-[15px]">
             {[
               ["#about", "About"],
@@ -219,12 +250,20 @@ export default function Page() {
               ["#ports", "Ports"],
               ["#catalogues", "Catalogues"],
             ].map(([href, label]) => (
-              <a key={href} href={href} className="hover:text-[#1f4e79] focus-visible:outline focus-visible:outline-[#4fc3f7] rounded">
+              <a
+                key={href}
+                href={href}
+                className={`${
+                  scrolled ? "hover:text-[#1f4e79]" : "hover:text-white/80"
+                } focus-visible:outline focus-visible:outline-[#4fc3f7] rounded`}
+              >
                 {label}
               </a>
             ))}
             <a
-              className="inline-flex items-center gap-2 text-white bg-[#2d6da3] hover:bg-[#1f4e79] px-4 py-2 rounded-[12px] shadow-[0_1px_2px_rgba(0,0,0,.06)] focus-visible:outline focus-visible:outline-[#4fc3f7]"
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-[12px] shadow-[0_1px_2px_rgba(0,0,0,.06)] focus-visible:outline focus-visible:outline-[#4fc3f7] ${
+                scrolled ? "text-white bg-[#2d6da3] hover:bg-[#1f4e79]" : "text-white bg-[#2d6da3]/90 hover:bg-[#2d6da3]"
+              }`}
               href="#cta"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="-ml-1">
@@ -233,6 +272,7 @@ export default function Page() {
               Contact
             </a>
           </nav>
+
           <button
             className="lg:hidden ml-auto p-2 rounded focus-visible:outline-2 focus-visible:outline-[#4fc3f7]"
             aria-expanded={menuOpen}
@@ -245,6 +285,8 @@ export default function Page() {
             </svg>
           </button>
         </div>
+
+        {/* Mobile dropdown stays white for readability */}
         <div className={`border-t border-gray-100 bg-white lg:hidden ${menuOpen ? "" : "hidden"}`}>
           <div id="mnav" className="mx-auto max-w-[1200px] px-4 md:px-6 py-3 grid gap-2">
             {[
@@ -264,10 +306,10 @@ export default function Page() {
       </header>
 
       <main id="main">
-        {/* HERO — centered content, background is a scrollable slides track */}
+        {/* HERO — starts at very top; header overlays it */}
         <section className="relative text-white">
           <div className="relative h-[70vh] min-h-[520px]">
-            {/* Background slides */}
+            {/* Background slides (scrollable & autoplay) */}
             <div
               ref={trackRef}
               className="absolute inset-0 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth scrollbar-hidden"
@@ -288,8 +330,7 @@ export default function Page() {
                           alt={s.alt || `Slide ${i + 1}`}
                           className="absolute inset-0 w-full h-full object-cover"
                         />
-                        {/* Lighter overlay so image stays visible */}
-                        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(10,26,47,.55),rgba(31,78,121,.35))]" />
+                        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(10,26,47,.45),rgba(31,78,121,.30))]" />
                       </>
                     )}
                   </div>
@@ -322,7 +363,6 @@ export default function Page() {
                   )}
                 </div>
 
-                {/* Dots + arrows (only if multiple slides) */}
                 {cfg.slides.length > 1 && (
                   <>
                     <div className="mt-6 flex items-center justify-center gap-2">
@@ -360,19 +400,18 @@ export default function Page() {
           </div>
         </section>
 
-        {/* CHIPS MARQUEE (right → left) */}
-        <section className="bg-white border-y">
-          <div className="mx-auto max-w-[1200px] px-4 md:px-6 relative h-12">
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-white to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-white to-transparent" />
-            <div className="vms-ticker h-full flex items-center">
-              <div className="vms-track">
-                {marqueeChips.map((t, i) => (
-                  <span key={`${t}-${i}`} className="mx-2 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs text-[#0a1a2f]">
-                    {t}
-                  </span>
-                ))}
-              </div>
+        {/* FULL-WIDTH MARQUEE — Roboto, black, bigger */}
+        <section className="bg-white">
+          <div className="vms-ticker h-14 md:h-16 flex items-center px-4 md:px-6">
+            <div className="vms-track roboto">
+              {marqueeDup.map((t, i) => (
+                <span
+                  key={`${t}-${i}`}
+                  className="mx-8 font-bold text-black text-lg md:text-xl lg:text-2xl whitespace-nowrap"
+                >
+                  {t}
+                </span>
+              ))}
             </div>
           </div>
         </section>
@@ -381,17 +420,28 @@ export default function Page() {
         <section id="about" className="py-12 md:py-16 lg:py-20">
           <div className="mx-auto max-w-[1200px] px-4 md:px-6 grid gap-10 md:grid-cols-2 items-start">
             <div>
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold mb-2 text-[#13294b]">Lorem ipsum dolor sit amet</h2>
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold mb-2 text-[#13294b]">
+                Lorem ipsum dolor sit amet
+              </h2>
               <p className="text-sm md:text-base leading-7 text-[#0a1a2f]/80">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer facilisis, lorem non rutrum dictum, urna magna
-                faucibus ante, at scelerisque sapien sapien a velit. Sed vitae lorem at enim luctus gravida.
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer facilisis, lorem
+                non rutrum dictum, urna magna faucibus ante, at scelerisque sapien sapien a velit.
+                Sed vitae lorem at enim luctus gravida.
               </p>
             </div>
             <div className="grid sm:grid-cols-2 gap-3 content-start">
-              <span className="bg-[#1f4e79] text-white text-sm px-3 py-2 rounded-[12px]">ISO 9001:2015</span>
-              <span className="bg-[#1f4e79] text-white text-sm px-3 py-2 rounded-[12px]">Indian Navy Vendor</span>
-              <span className="bg-[#3BAFDA] text-[#0a1a2f] text-sm px-3 py-2 rounded-[12px]">24×7 • All Indian Ports</span>
-              <span className="bg-[#3BAFDA] text-[#0a1a2f] text-sm px-3 py-2 rounded-[12px]">UAE • Oman Partners</span>
+              <span className="bg-[#1f4e79] text-white text-sm px-3 py-2 rounded-[12px]">
+                ISO 9001:2015
+              </span>
+              <span className="bg-[#1f4e79] text-white text-sm px-3 py-2 rounded-[12px]">
+                Indian Navy Vendor
+              </span>
+              <span className="bg-[#3BAFDA] text-[#0a1a2f] text-sm px-3 py-2 rounded-[12px]">
+                24×7 • All Indian Ports
+              </span>
+              <span className="bg-[#3BAFDA] text-[#0a1a2f] text-sm px-3 py-2 rounded-[12px]">
+                UAE • Oman Partners
+              </span>
             </div>
           </div>
         </section>
@@ -400,7 +450,9 @@ export default function Page() {
         <section id="products" className="py-16 lg:py-20">
           <div className="mx-auto max-w-[1200px] px-4 md:px-6">
             <div className="flex items-end justify-between mb-4">
-              <h3 className="text-lg md:text-xl font-semibold text-[#13294b]">Products — scroll-snap — 2×2 image blocks ×14</h3>
+              <h3 className="text-lg md:text-xl font-semibold text-[#13294b]">
+                Products — scroll-snap — 2×2 image blocks ×14
+              </h3>
               <div className="text-xs text-[#0a1a2f]/70">Manual scroll • inertial</div>
             </div>
 
@@ -425,8 +477,12 @@ export default function Page() {
                     </div>
                     <div className="p-3">
                       <h4 className="font-semibold text-[#0a1a2f] text-sm">Lorem ipsum</h4>
-                      <p className="text-xs text-[#0a1a2f]/70 mt-1">Lorem ipsum dolor sit amet elit sed do.</p>
-                      <button className="mt-3 text-[#2d6da3] text-sm underline underline-offset-2">→ lorem</button>
+                      <p className="text-xs text-[#0a1a2f]/70 mt-1">
+                        Lorem ipsum dolor sit amet elit sed do.
+                      </p>
+                      <button className="mt-3 text-[#2d6da3] text-sm underline underline-offset-2">
+                        → lorem
+                      </button>
                     </div>
                   </article>
                 ))}
@@ -434,10 +490,16 @@ export default function Page() {
 
               <div className="mt-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <button onClick={() => scrollByStep("#prodTrack", -1)} className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100">
+                  <button
+                    onClick={() => scrollByStep("#prodTrack", -1)}
+                    className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
+                  >
                     ◀
                   </button>
-                  <button onClick={() => scrollByStep("#prodTrack", 1)} className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100">
+                  <button
+                    onClick={() => scrollByStep("#prodTrack", 1)}
+                    className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
+                  >
                     ▶
                   </button>
                 </div>
@@ -453,11 +515,13 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Services band */}
+        {/* Services */}
         <section id="services" className="py-16 bg-[#ECF2F6]">
           <div className="mx-auto max-w-[1200px] px-4 md:px-6">
             <div className="flex items-end justify-between mb-4">
-              <h3 className="text-lg md:text-xl font-semibold text-[#13294b]">Technical Services — scroll-snap — 2×2 image blocks ×12</h3>
+              <h3 className="text-lg md:text-xl font-semibold text-[#13294b]">
+                Technical Services — scroll-snap — 2×2 image blocks ×12
+              </h3>
               <div className="text-xs text-[#0a1a2f]/70">Manual scroll • inertial</div>
             </div>
 
@@ -481,8 +545,12 @@ export default function Page() {
                     </div>
                     <div className="p-3">
                       <h4 className="font-semibold text-[#0a1a2f] text-sm">Lorem ipsum</h4>
-                      <p className="text-xs text-[#0a1a2f]/70 mt-1">Lorem ipsum dolor sit amet elit sed do.</p>
-                      <button className="mt-3 text-[#2d6da3] text-sm underline underline-offset-2">→ lorem</button>
+                      <p className="text-xs text-[#0a1a2f]/70 mt-1">
+                        Lorem ipsum dolor sit amet elit sed do.
+                      </p>
+                      <button className="mt-3 text-[#2d6da3] text-sm underline underline-offset-2">
+                        → lorem
+                      </button>
                     </div>
                   </article>
                 ))}
@@ -490,10 +558,16 @@ export default function Page() {
 
               <div className="mt-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <button onClick={() => scrollByStep("#svcTrack", -1)} className="px-3 py-2 rounded bg-white hover:bg-gray-50 border border-gray-100">
+                  <button
+                    onClick={() => scrollByStep("#svcTrack", -1)}
+                    className="px-3 py-2 rounded bg-white hover:bg-gray-50 border border-gray-100"
+                  >
                     ◀
                   </button>
-                  <button onClick={() => scrollByStep("#svcTrack", 1)} className="px-3 py-2 rounded bg-white hover:bg-gray-50 border border-gray-100">
+                  <button
+                    onClick={() => scrollByStep("#svcTrack", 1)}
+                    className="px-3 py-2 rounded bg-white hover:bg-gray-50 border border-gray-100"
+                  >
                     ▶
                   </button>
                 </div>
@@ -509,55 +583,75 @@ export default function Page() {
           </div>
         </section>
 
-        {/* VM/CV/Principles */}
-        <section className="py-12">
-          <div className="mx-auto max-w-[1200px] px-4 md:px-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-xl p-6 shadow-[0_1px_2px_rgba(0,0,0,.06)] hover:shadow-[0_4px_10px_rgba(0,0,0,.10)] transition">
-                <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100" />
-                <p className="mt-4 text-[#0a1a2f]/80 text-sm leading-6">
-                  Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* CTA */}
         <section id="cta" className="py-20 relative">
           <div className="absolute inset-0 -z-10 bg-[linear-gradient(120deg,#E3F2F7,#FFFFFF)]" />
           <div className="mx-auto max-w-[1200px] px-4 md:px-6 grid lg:grid-cols-[1fr_320px] gap-6">
-            <form ref={formRef} noValidate onSubmit={onSubmitLead} className="bg-white/95 rounded-2xl p-6 md:p-8 shadow-[0_8px_18px_rgba(0,0,0,.14)]">
-              <h3 className="text-lg md:text-2xl font-semibold text-[#13294b]">Tell us what you need at your next port</h3>
-              <p className="mt-1 text-sm text-[#0a1a2f]/70">We’ll respond within business hours with availability and ETA.</p>
+            <form
+              ref={formRef}
+              noValidate
+              onSubmit={onSubmitLead}
+              className="bg-white/95 rounded-2xl p-6 md:p-8 shadow-[0_8px_18px_rgba(0,0,0,.14)]"
+            >
+              <h3 className="text-lg md:text-2xl font-semibold text-[#13294b]">
+                Tell us what you need at your next port
+              </h3>
+              <p className="mt-1 text-sm text-[#0a1a2f]/70">
+                We’ll respond within business hours with availability and ETA.
+              </p>
               <div ref={alertRef} className="hidden mt-4 p-3 rounded bg-green-50 text-green-800 text-sm" />
               <div className="mt-6 grid md:grid-cols-2 gap-4">
                 <label className="grid gap-1 text-sm">
                   Full Name<span className="sr-only">required</span>
-                  <input required name="name" className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]" />
+                  <input
+                    required
+                    name="name"
+                    className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]"
+                  />
                   <span className="error text-xs text-red-600 hidden">This field is required.</span>
                 </label>
                 <label className="grid gap-1 text-sm">
                   Company
-                  <input name="company" className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]" />
+                  <input
+                    name="company"
+                    className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]"
+                  />
                 </label>
                 <label className="grid gap-1 text-sm">
                   Email
-                  <input required name="email" type="email" className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]" />
+                  <input
+                    required
+                    name="email"
+                    type="email"
+                    className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]"
+                  />
                   <span className="error text-xs text-red-600 hidden">Enter a valid email.</span>
                 </label>
                 <label className="grid gap-1 text-sm">
                   Phone/WhatsApp
-                  <input required name="phone" inputMode="tel" className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]" placeholder="+91 00000 00000" />
+                  <input
+                    required
+                    name="phone"
+                    inputMode="tel"
+                    placeholder="+91 00000 00000"
+                    className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]"
+                  />
                   <span className="error text-xs text-red-600 hidden">Include country/area code.</span>
                 </label>
                 <label className="grid gap-1 text-sm">
                   Port/Location
-                  <input name="port" className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]" placeholder="Chennai, Mumbai, ..." />
+                  <input
+                    name="port"
+                    placeholder="Chennai, Mumbai, ..."
+                    className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]"
+                  />
                 </label>
                 <label className="grid gap-1 text-sm">
                   Service Category
-                  <select name="category" className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]">
+                  <select
+                    name="category"
+                    className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]"
+                  >
                     <option>Products</option>
                     <option>Technical Services</option>
                     <option>HVAC & Refrigeration</option>
@@ -568,10 +662,17 @@ export default function Page() {
               </div>
               <label className="grid gap-1 text-sm mt-4">
                 Message
-                <textarea name="message" rows={4} className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]" />
+                <textarea
+                  name="message"
+                  rows={4}
+                  className="rounded-xl border border-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4fc3f7]"
+                />
               </label>
               <div className="mt-6 flex flex-wrap items-center gap-3">
-                <button type="submit" className="inline-flex items-center gap-2 bg-[#2d6da3] hover:bg-[#1f4e79] text-white px-5 py-3 rounded-xl shadow-[0_4px_10px_rgba(0,0,0,.10)] focus-visible:outline focus-visible:outline-[#4fc3f7]">
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-2 bg-[#2d6da3] hover:bg-[#1f4e79] text-white px-5 py-3 rounded-xl shadow-[0_4px_10px_rgba(0,0,0,.10)] focus-visible:outline focus-visible:outline-[#4fc3f7]"
+                >
                   Submit
                 </button>
                 <span className="text-xs text-[#0a1a2f]/70">ISO 9001:2015 • Indian Navy Vendor</span>
@@ -588,11 +689,13 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Goa Paints Banner */}
+        {/* Banner */}
         <section id="catalogues" className="py-14 relative text-white">
           <div className="absolute inset-0 bg-[linear-gradient(120deg,#13294b,#1f4e79)]" />
           <div className="relative mx-auto max-w-[1200px] px-4 md:px-6 flex items-center justify-between">
-            <p className="text-base md:text-lg">Authorized Distributor — Goa Paints • ROHS/REACH • VOC • Lead/Chrome-free</p>
+            <p className="text-base md:text-lg">
+              Authorized Distributor — Goa Paints • ROHS/REACH • VOC • Lead/Chrome-free
+            </p>
             <span className="text-xs opacity-80">Performance: LCP≤2.5s • CLS≤0.1 • INP≤200ms</span>
           </div>
         </section>
@@ -601,12 +704,30 @@ export default function Page() {
       {/* Footer */}
       <footer className="text-white py-16 bg-gradient-to-b from-[#0E3857] to-[#0B2C48]">
         <div className="mx-auto max-w-[1200px] px-4 md:px-6 grid md:grid-cols-3 lg:grid-cols-6 gap-6">
-          <div><div className="font-semibold mb-2">About</div><div className="text-white/80 text-sm">Lorem ipsum dolor sit amet.</div></div>
-          <div><div className="font-semibold mb-2">Links</div><div className="text-white/80 text-sm">Lorem ipsum dolor sit.</div></div>
-          <div><div className="font-semibold mb-2">Catalogues</div><div className="text-white/80 text-sm">Lorem ipsum dolor sit.</div></div>
-          <div id="ports"><div className="font-semibold mb-2">Ports</div><div className="text-white/80 text-sm">India • UAE • Oman</div></div>
-          <div><div className="font-semibold mb-2">Contact</div><div className="text-white/80 text-sm">+91 • info@...</div></div>
-          <div><div className="font-semibold mb-2">Social</div><div className="text-white/80 text-sm">LinkedIn • Instagram</div></div>
+          <div>
+            <div className="font-semibold mb-2">About</div>
+            <div className="text-white/80 text-sm">Lorem ipsum dolor sit amet.</div>
+          </div>
+          <div>
+            <div className="font-semibold mb-2">Links</div>
+            <div className="text-white/80 text-sm">Lorem ipsum dolor sit.</div>
+          </div>
+          <div>
+            <div className="font-semibold mb-2">Catalogues</div>
+            <div className="text-white/80 text-sm">Lorem ipsum dolor sit.</div>
+          </div>
+          <div id="ports">
+            <div className="font-semibold mb-2">Ports</div>
+            <div className="text-white/80 text-sm">India • UAE • Oman</div>
+          </div>
+          <div>
+            <div className="font-semibold mb-2">Contact</div>
+            <div className="text-white/80 text-sm">+91 • info@...</div>
+          </div>
+          <div>
+            <div className="font-semibold mb-2">Social</div>
+            <div className="text-white/80 text-sm">LinkedIn • Instagram</div>
+          </div>
         </div>
         <div className="mt-6 border-t border-white/10">
           <div className="mx-auto max-w-[1200px] px-4 md:px-6 py-4 text-sm text-white/80 flex flex-wrap gap-3 items-center justify-between">
@@ -618,24 +739,43 @@ export default function Page() {
 
       {/* Global helpers & marquee CSS */}
       <style jsx global>{`
-        .scrollbar-hidden::-webkit-scrollbar { display: none; }
-        .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+        .scrollbar-hidden::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hidden {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
 
-        /* marquee */
-        .vms-ticker { overflow: hidden; position: relative; }
+        /* Roboto helper */
+        .roboto {
+          font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial,
+            'Apple Color Emoji', 'Segoe UI Emoji';
+        }
+
+        /* full-width marquee (no borders, edge-to-edge) */
+        .vms-ticker {
+          overflow: hidden;
+          position: relative;
+          width: 100%;
+        }
         .vms-track {
           display: inline-flex;
           align-items: center;
           white-space: nowrap;
           animation: vms-marquee 10s linear infinite;
-          animation-delay: 0s;
-          animation-play-state: running;
           will-change: transform;
         }
-        .vms-ticker:hover .vms-track { animation-play-state: paused; }
+        .vms-ticker:hover .vms-track {
+          animation-play-state: paused;
+        }
         @keyframes vms-marquee {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
       `}</style>
     </>
