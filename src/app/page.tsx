@@ -222,88 +222,165 @@ export default function Page() {
       </a>
 
       {/* Header — fixed; transparent at top over hero, solid white after scroll */}
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
-          scrolled ? "bg-white/95 backdrop-blur shadow-sm" : "bg-transparent"
-        }`}
-      >
-        <div
-          className={`mx-auto max-w-[1200px] px-4 md:px-6 h-24 flex items-center gap-6 ${
-            scrolled ? "text-[#0a1a2f]" : "text-white"
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-20 h-12 rounded-xl bg-[#0a1a2f] grid place-items-center text-white font-semibold">
-              VMS
-            </div>
-            <div className="hidden md:flex items-center gap-2">
-              <span className="text-white bg-[#1f4e79] px-3 py-1 rounded-full text-xs">ISO 9001:2015</span>
-              <span className="text-white bg-[#1f4e79] px-3 py-1 rounded-full text-xs">Indian Navy Vendor</span>
-            </div>
-          </div>
+     <header
+  className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
+    scrolled ? "bg-white/95 backdrop-blur shadow-sm" : "bg-transparent"
+  }`}
+>
+  <div className="flex items-center justify-between max-w-[1200px] mx-auto h-24 px-4 md:px-6">
+    
+    {/* Logo & ISO */}
+    <div className="flex flex-col items-start gap-1">
+      <img src="/logo.png" alt="Logo" className="h-16 w-auto"/>
+      <span className={`px-4 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors duration-300 ${
+        scrolled ? "bg-[#1f4e79] text-white" : "bg-[#1f4e79] text-white"
+      }`}>
+        AN ISO 9001 : 2015 CERTIFIED COMPANY
+      </span>
+    </div>
 
-          <nav aria-label="Primary" className="hidden lg:flex ml-auto items-center gap-6 text-[15px]">
+    {/* Desktop Navigation */}
+    <nav className={`hidden lg:flex items-center gap-6 text-[15px] relative transition-colors duration-300 ${
+      scrolled ? "text-black" : "text-white"
+    }`}>
+      <a href="#home" className="hover:text-gray-500 rounded">Home</a>
+      <a href="#about" className="hover:text-gray-500 rounded">About Us</a>
+
+      {/* Products Dropdown */}
+      <div className="relative group">
+        <button className="hover:text-gray-500 rounded">Products</button>
+        <div className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-all duration-200 bg-white text-[#0a1a2f] rounded shadow-lg min-w-[220px] z-50">
+          <ul className="p-2">
             {[
-              ["#about", "About"],
-              ["#products", "Products"],
-              ["#services", "Services"],
-              ["#ports", "Ports"],
-              ["#catalogues", "Catalogues"],
-            ].map(([href, label]) => (
-              <a
-                key={href}
-                href={href}
-                className={`${
-                  scrolled ? "hover:text-[#1f4e79]" : "hover:text-white/80"
-                } focus-visible:outline focus-visible:outline-[#4fc3f7] rounded`}
-              >
-                {label}
-              </a>
+              "Fresh, Frozen & Dry Provisions",
+              "Bonded Stores & Slop Chest",
+              "IT Equipments & Accessories",
+              "Deck & Engine Stores",
+              "Cabin & Galley Stores",
+              "Marine Spares, Lube Oil & Valves",
+              "Marine Chemicals & Gases",
+              "Marine Paints",
+              "Electrical Stores",
+              "Electronics & Navigational Supplies",
+              "Medical Stores",
+              "Water Treatment Systems",
+              "Other Supplies"
+            ].map(item => (
+              <li key={item} className="px-4 py-1 hover:bg-gray-100 rounded whitespace-nowrap">
+                <a href="#products">{item}</a>
+              </li>
             ))}
-            <a
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-[12px] shadow-[0_1px_2px_rgba(0,0,0,.06)] focus-visible:outline focus-visible:outline-[#4fc3f7] ${
-                scrolled ? "text-white bg-[#2d6da3] hover:bg-[#1f4e79]" : "text-white bg-[#2d6da3]/90 hover:bg-[#2d6da3]"
-              }`}
-              href="#cta"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="-ml-1">
-                <path d="M2 5l10 7L22 5v14H2z" stroke="currentColor" strokeWidth="2" />
-              </svg>
-              Contact
-            </a>
-          </nav>
-
-          <button
-            className="lg:hidden ml-auto p-2 rounded focus-visible:outline-2 focus-visible:outline-[#4fc3f7]"
-            aria-expanded={menuOpen}
-            aria-controls="mnav"
-            aria-label="Open menu"
-            onClick={() => setMenuOpen((v) => !v)}
-          >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" />
-            </svg>
-          </button>
+          </ul>
         </div>
+      </div>
 
-        {/* Mobile dropdown stays white for readability */}
-        <div className={`border-t border-gray-100 bg-white lg:hidden ${menuOpen ? "" : "hidden"}`}>
-          <div id="mnav" className="mx-auto max-w-[1200px] px-4 md:px-6 py-3 grid gap-2">
+      {/* Technical Services Dropdown */}
+      <div className="relative group">
+        <button className="hover:text-gray-500 rounded">Technical Services</button>
+        <div className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-all duration-200 bg-white text-[#0a1a2f] rounded shadow-lg min-w-[220px] z-50">
+          <ul className="p-2">
             {[
-              ["#about", "About"],
-              ["#products", "Products"],
-              ["#services", "Services"],
-              ["#ports", "Ports"],
-              ["#catalogues", "Catalogues"],
-              ["#cta", "Contact"],
-            ].map(([href, label]) => (
-              <a key={href} className="py-2" href={href} onClick={() => setMenuOpen(false)}>
-                {label}
-              </a>
+              "Hull and Structure Repairs",
+              "Engine and Propulsion Systems",
+              "Electrical and Automation Systems",
+              "Piping and Valve Systems",
+              "Deck and Cargo Equipment",
+              "Safety and Environmental Systems",
+              "Interior and Accommodation Services",
+              "Dry Docking and Survey Preparation",
+              "Ship Propulsion and Performance Optimization",
+              "Fleet Management and Consultancy",
+              "Crew Training and Support",
+              "Miscellaneous Services"
+            ].map(item => (
+              <li key={item} className="px-4 py-1 hover:bg-gray-100 rounded whitespace-nowrap">
+                <a href="#services">{item}</a>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
-      </header>
+      </div>
+
+      <a href="#exports" className="hover:text-gray-500 rounded">Exports</a>
+      <a href="#enquiry" className="hover:text-gray-500 rounded">Enquiry</a>
+      <a href="#vendor" className="hover:text-gray-500 rounded">Vendor Registration</a>
+      <a href="#cta" className="hover:text-gray-500 rounded">Contact Us</a>
+    </nav>
+
+    {/* Mobile menu toggle */}
+    <button
+      className="lg:hidden p-2 rounded"
+      aria-expanded={menuOpen}
+      aria-controls="mnav"
+      aria-label="Open menu"
+      onClick={() => setMenuOpen(!menuOpen)}
+    >
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" />
+      </svg>
+    </button>
+  </div>
+
+  {/* Mobile dropdown */}
+  <div className={`border-t border-gray-100 bg-white lg:hidden ${menuOpen ? "" : "hidden"}`}>
+    <div id="mnav" className="mx-auto max-w-[1200px] px-4 md:px-6 py-3 flex flex-col gap-2">
+      <a href="#home" className="py-2" onClick={() => setMenuOpen(false)}>Home</a>
+      <a href="#about" className="py-2" onClick={() => setMenuOpen(false)}>About Us</a>
+
+      <details className="group py-2">
+        <summary className="cursor-pointer select-none">Products</summary>
+        <div className="pl-4 mt-1 flex flex-col gap-1">
+          {[
+            "Fresh, Frozen & Dry Provisions",
+            "Bonded Stores & Slop Chest",
+            "IT Equipments & Accessories",
+            "Deck & Engine Stores",
+            "Cabin & Galley Stores",
+            "Marine Spares, Lube Oil & Valves",
+            "Marine Chemicals & Gases",
+            "Marine Paints",
+            "Electrical Stores",
+            "Electronics & Navigational Supplies",
+            "Medical Stores",
+            "Water Treatment Systems",
+            "Other Supplies"
+          ].map(item => (
+            <a key={item} href="#products" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>{item}</a>
+          ))}
+        </div>
+      </details>
+
+      <details className="group py-2">
+        <summary className="cursor-pointer select-none">Technical Services</summary>
+        <div className="pl-4 mt-1 flex flex-col gap-1">
+          {[
+            "Hull and Structure Repairs",
+            "Engine and Propulsion Systems",
+            "Electrical and Automation Systems",
+            "Piping and Valve Systems",
+            "Deck and Cargo Equipment",
+            "Safety and Environmental Systems",
+            "Interior and Accommodation Services",
+            "Dry Docking and Survey Preparation",
+            "Ship Propulsion and Performance Optimization",
+            "Fleet Management and Consultancy",
+            "Crew Training and Support",
+            "Miscellaneous Services"
+          ].map(item => (
+            <a key={item} href="#services" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>{item}</a>
+          ))}
+        </div>
+      </details>
+
+      <a href="#exports" className="py-2" onClick={() => setMenuOpen(false)}>Exports</a>
+      <a href="#enquiry" className="py-2" onClick={() => setMenuOpen(false)}>Enquiry</a>
+      <a href="#vendor" className="py-2" onClick={() => setMenuOpen(false)}>Vendor Registration</a>
+      <a href="#cta" className="py-2" onClick={() => setMenuOpen(false)}>Contact Us</a>
+    </div>
+  </div>
+</header>
+
+
 
       <main id="main">
         {/* HERO — starts at very top; header overlays it */}
@@ -402,19 +479,24 @@ export default function Page() {
 
         {/* FULL-WIDTH MARQUEE — Roboto, black, bigger */}
         <section className="bg-white">
-          <div className="vms-ticker h-14 md:h-16 flex items-center px-4 md:px-6">
-            <div className="vms-track roboto">
-              {marqueeDup.map((t, i) => (
-                <span
-                  key={`${t}-${i}`}
-                  className="mx-8 font-bold text-black text-lg md:text-xl lg:text-2xl whitespace-nowrap"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
+  <div className="vms-ticker h-14 md:h-16 flex items-center px-4 md:px-6">
+    <div className="vms-track roboto">
+      {[
+       "Registered Supplier on the Government e-Marketplace (GeM)",
+        "Approved Vendor for Ministry of Defence",
+        "Authorized Distributor for GOA PAINTS Brand",,
+      ].map((item, index) => (
+        <span
+          key={index}
+          className="text-lg md:text-xl font-medium mx-6 text-gray-700"
+        >
+          {item}
+        </span>
+      ))}
+    </div>
+  </div>
+</section>
+
 
         {/* Intro */}
         <section id="about" className="py-12 md:py-16 lg:py-20">

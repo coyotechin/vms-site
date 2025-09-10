@@ -11,13 +11,11 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-   --color-vms-blue1: #0B2C48;
+  --color-vms-blue1: #0B2C48;
   --color-vms-blue2: #0E3857;
   --color-vms-blue3: #174B73;
   --color-vms-ash:   #ECF2F6;
   --shadow-card: 0 6px 20px rgba(10,31,68,.12);
-
-  
 }
 
 @media (prefers-color-scheme: dark) {
@@ -33,3 +31,23 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ✅ Add Marquee Animation Below */
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.vms-track {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker 40s linear infinite; /* slower speed */
+}
+
+.vms-ticker {
+  overflow: hidden;
+  position: relative;
+}
