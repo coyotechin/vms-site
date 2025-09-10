@@ -524,21 +524,58 @@ export default function Page() {
               </p>
             </div>
             <div className="grid sm:grid-cols-2 gap-3 content-start">
-              <span className="bg-[#1f4e79] text-white text-sm px-3 py-2 rounded-[12px]">
-                ISO 9001:2015
-              </span>
-              <span className="bg-[#1f4e79] text-white text-sm px-3 py-2 rounded-[12px]">
-                Indian Navy Vendor
-              </span>
-              <span className="bg-[#3BAFDA] text-[#0a1a2f] text-sm px-3 py-2 rounded-[12px]">
-                24×7 • All Indian Ports
-              </span>
-              <span className="bg-[#3BAFDA] text-[#0a1a2f] text-sm px-3 py-2 rounded-[12px]">
-                UAE • Oman Partners
-              </span>
+             <img 
+  src="/lob.png" 
+  alt="About Goa Paints" 
+  className="w-full h-auto rounded-[12px] object-cover"
+/>
+
             </div>
           </div>
         </section>
+        {/* Certificate */}
+<section className="relative text-white h-60 flex items-center">
+  <div className="absolute inset-0 bg-[linear-gradient(120deg,#13294b,#1f4e79)]"></div>
+
+  <div className="relative mx-auto max-w-[1200px] px-4 md:px-6 flex items-center justify-between w-full">
+    {/* Left side text + button */}
+    <div className="flex items-center gap-4">
+      <p className="text-lg md:text-xl">Goa Paints Authorized Distributor, For more details</p>
+      <button className="flex items-center gap-2 bg-white text-[#1f4e79] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">
+        Click here
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+
+    {/* KPI image preview */}
+    <div className="relative group cursor-pointer">
+      <img
+        src="/Certificate.jpg"
+        alt="KPI Preview"
+        className="w-50 h-50 object-contain rounded-lg transition-transform group-hover:scale-110"
+      />
+      {/* Hover preview popup */}
+      <div className="absolute right-0 top-12 hidden group-hover:block z-50">
+        <img
+          src="/Certificate.jpg"
+          alt="KPI Full Preview"
+          className="w-[1600px] h-auto rounded-lg shadow-lg border border-white/20"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
 
         {/* Products */}
         <section id="products" className="py-16 lg:py-20">
