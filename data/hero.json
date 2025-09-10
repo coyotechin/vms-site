@@ -1,0 +1,22 @@
+{
+  "title": "Lorem vbchfghnbghv",
+  "subtitle": "Lorem dfhgfjhfytgj",
+  "slides": [
+    {
+      "src": "/uploads/1757422970069-Screenshot_1_.png",
+      "alt": "Screenshot (1).png"
+    },
+    {
+      "src": "/uploads/1757422970366-Screenshot_2_.png",
+      "alt": "Screenshot (2).png"
+    }
+  ],
+  "button1": {
+    "text": "GET",
+    "href": "#123"
+  },
+  "button2": {
+    "text": "View Catalogue",
+    "href": "#catalogues"
+  }
+}

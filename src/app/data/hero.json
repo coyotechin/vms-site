@@ -1,0 +1,16 @@
+{
+  "slides": [
+    {
+      "src": "/uploads/1757422474374-Screenshot_1_.png",
+      "alt": "Screenshot (1).png"
+    }
+  ],
+  "button1": {
+    "text": "GET",
+    "href": "#123"
+  },
+  "button2": {
+    "text": "View Catalogue",
+    "href": "#catalogues"
+  }
+}
