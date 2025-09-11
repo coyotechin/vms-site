@@ -540,15 +540,18 @@ export default function Page() {
 
 
   {/* Certificate */}
-<section className="relative text-white h-60 flex items-center">
+<section className="relative text-white h-auto md:h-60 flex items-center py-6 md:py-0">
   <div className="absolute inset-0 bg-[linear-gradient(120deg,#13294b,#1f4e79)]"></div>
 
-  <div className="relative mx-auto max-w-[1200px] px-4 md:px-6 flex items-center justify-between w-full">
+  <div className="relative mx-auto max-w-[1200px] px-4 md:px-6 flex flex-col md:flex-row items-center justify-between w-full gap-6">
+    
     {/* Left side text + button */}
-    <div className="flex items-center gap-4">
-      <p className="text-lg md:text-xl">Goa Paints Authorized Distributor, For more details</p>
+    <div className="flex flex-col items-center md:items-start gap-3 text-center md:text-left">
+      <p className="text-lg md:text-xl">
+        Goa Paints Authorized Distributor, For more details
+      </p>
       <a
-        href="#certificate-section"
+        href="#"
         className="flex items-center gap-2 bg-white text-[#1f4e79] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition"
       >
         Click here
@@ -565,23 +568,24 @@ export default function Page() {
     </div>
 
     {/* KPI image preview */}
-    <div className="relative group cursor-pointer">
+    <div className="relative group cursor-pointer mt-6 md:mt-0 flex justify-center md:justify-end w-full md:w-auto">
       <img
         src="/Certificate.jpg"
         alt="KPI Preview"
-        className="w-50 h-50 object-contain rounded-lg transition-transform group-hover:scale-110"
+        className="w-40 md:w-50 h-40 md:h-50 object-contain rounded-lg transition-transform group-hover:scale-110"
       />
       {/* Hover preview popup */}
       <div className="absolute right-0 top-12 hidden group-hover:block z-50">
         <img
           src="/Certificate.jpg"
           alt="KPI Full Preview"
-          className="w-[1600px] h-auto rounded-lg shadow-lg border border-white/20"
+          className="w-[600px] md:w-[800px] h-auto rounded-lg shadow-lg border border-white/20"
         />
       </div>
     </div>
   </div>
 </section>
+
 
 {/* Target section */}
 <section
