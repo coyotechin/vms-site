@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Slide = { src: string; alt?: string };
+type Slide = { title?: string; desc?: string; alt?: string; images: string[] };
 type HeroConfig = {
   title: string;
   subtitle: string;
@@ -12,6 +12,8 @@ type HeroConfig = {
   button1: { text: string; href: string };
   button2: { text: string; href: string };
 };
+
+type SlideType = "products" | "technicalServices";
 
 const DEFAULT_CFG: HeroConfig = {
   title: "Lorem ipsum dolor sit amet consectetur.",
@@ -27,16 +29,14 @@ export default function AdminHeroPage() {
   const router = useRouter();
   const [cfg, setCfg] = useState<HeroConfig>(DEFAULT_CFG);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const role = localStorage.getItem("role");
     const legacyAdmin = localStorage.getItem("isAdmin") === "true";
-    if (role !== "admin" && !legacyAdmin) {
-      router.replace("/login");
-    }
+    if (role !== "admin" && !legacyAdmin) router.replace("/login");
   }, [router]);
 
   const logout = () => {
@@ -64,7 +64,10 @@ export default function AdminHeroPage() {
         const data = await fetchJson("/api/hero");
         const merged: HeroConfig = {
           title: typeof data?.title === "string" ? data.title : DEFAULT_CFG.title,
-          subtitle: typeof data?.subtitle === "string" ? data.subtitle : DEFAULT_CFG.subtitle,
+          subtitle:
+            typeof data?.subtitle === "string"
+              ? data.subtitle
+              : DEFAULT_CFG.subtitle,
           products: Array.isArray(data?.products) ? data.products : [],
           technicalServices: Array.isArray(data?.technicalServices)
             ? data.technicalServices
@@ -80,15 +83,16 @@ export default function AdminHeroPage() {
     })();
   }, []);
 
-  const uploadFiles = async (
+  const uploadCardImages = async (
     files: FileList | null,
-    type: "products" | "technicalServices"
+    type: SlideType,
+    cardIndex: number
   ) => {
-    if (!files || !files.length) return;
-    setUploading(true);
+    if (!files?.length) return;
+    setUploading((u) => ({ ...u, [type]: true }));
     setError(null);
     try {
-      const newSlides: Slide[] = [];
+      const urls: string[] = [];
       for (const f of Array.from(files)) {
         const fd = new FormData();
         fd.append("file", f);
@@ -97,23 +101,37 @@ export default function AdminHeroPage() {
           throw new Error(await res.text());
         });
         if (!res.ok || !data?.ok) throw new Error(data?.error || "Upload failed");
-        newSlides.push({ src: data.src, alt: f.name });
+        urls.push(data.src);
       }
-      setCfg((p) => ({
-        ...p,
-        [type]: [...p[type], ...newSlides],
-      }));
+      setCfg((p) => {
+        const arr = [...p[type]];
+        arr[cardIndex] = {
+          ...arr[cardIndex],
+          images: [...(arr[cardIndex].images || []), ...urls],
+        };
+        return { ...p, [type]: arr };
+      });
     } catch (e: any) {
       setError(e?.message || "Upload failed");
     } finally {
-      setUploading(false);
+      setUploading((u) => ({ ...u, [type]: false }));
     }
   };
 
-  const removeAt = (i: number, type: "products" | "technicalServices") =>
+  const removeImage = (type: SlideType, cardIndex: number, imgIndex: number) =>
+    setCfg((p) => {
+      const arr = [...p[type]];
+      arr[cardIndex] = {
+        ...arr[cardIndex],
+        images: arr[cardIndex].images.filter((_, i) => i !== imgIndex),
+      };
+      return { ...p, [type]: arr };
+    });
+
+  const removeCard = (i: number, type: SlideType) =>
     setCfg((p) => ({ ...p, [type]: p[type].filter((_, j) => j !== i) }));
 
-  const move = (i: number, dir: -1 | 1, type: "products" | "technicalServices") =>
+  const moveCard = (i: number, dir: -1 | 1, type: SlideType) =>
     setCfg((p) => {
       const arr = [...p[type]];
       const j = i + dir;
@@ -122,10 +140,15 @@ export default function AdminHeroPage() {
       return { ...p, [type]: arr };
     });
 
-  const updateAlt = (i: number, alt: string, type: "products" | "technicalServices") =>
+  const updateCard = (
+    i: number,
+    type: SlideType,
+    field: keyof Slide,
+    value: string
+  ) =>
     setCfg((p) => {
       const arr = [...p[type]];
-      arr[i] = { ...arr[i], alt };
+      arr[i] = { ...arr[i], [field]: value };
       return { ...p, [type]: arr };
     });
 
@@ -142,8 +165,14 @@ export default function AdminHeroPage() {
         throw new Error(await res.text());
       });
       if (!res.ok || !data?.ok) throw new Error(data?.error || "Save failed");
+      
+      // Update the image version to force refresh on the home page
       localStorage.setItem("hero-updated", Date.now().toString());
-      alert("Saved!");
+      
+      // Broadcast the change to other tabs/windows
+      window.dispatchEvent(new Event("storage"));
+      
+      alert("Saved! Changes will be reflected on the home page.");
     } catch (e: any) {
       setError(e?.message || "Save failed");
     } finally {
@@ -152,172 +181,231 @@ export default function AdminHeroPage() {
   };
 
   return (
-    <main className="mx-auto max-w-[1100px] p-6 bg-white text-gray-900">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Hero Admin</h1>
-          <p className="text-sm text-gray-700">
-            Upload / reorder slides and edit hero texts & buttons.
-          </p>
-        </div>
-        <button
-          onClick={logout}
-          className="inline-flex items-center gap-2 rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800"
-        >
-          Logout
-        </button>
-      </div>
-
-      {error && (
-        <div className="mt-4 rounded bg-red-50 text-red-700 px-3 py-2 text-sm whitespace-pre-wrap">
-          {error}
-        </div>
-      )}
-
-      {/* Hero Text */}
-      <section className="mt-6 space-y-4">
-        <h2 className="font-semibold">Hero Text</h2>
-        <label className="grid gap-1 text-sm">
-          Title
-          <input
-            value={cfg.title}
-            onChange={(e) => setCfg((p) => ({ ...p, title: e.target.value }))}
-            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
-          />
-        </label>
-        <label className="grid gap-1 text-sm">
-          Subtitle
-          <textarea
-            rows={3}
-            value={cfg.subtitle}
-            onChange={(e) => setCfg((p) => ({ ...p, subtitle: e.target.value }))}
-            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
-          />
-        </label>
-      </section>
-
-      {/* Products & Technical Services */}
-      {["products", "technicalServices"].map((type) => (
-        <section key={type} className="mt-8">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-semibold capitalize">
-              {type === "products" ? "Products" : "Technical Services"}
-            </h2>
-            <label className="inline-flex items-center gap-2 text-sm rounded bg-slate-900 text-white px-3 py-2 cursor-pointer">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={(e) =>
-                  uploadFiles(e.target.files, type as "products" | "technicalServices")
-                }
-              />
-              {uploading ? "Uploading..." : `Add ${type === "products" ? "product" : "service"} images`}
-            </label>
+    <div className="min-h-screen bg-white">
+      <main className="mx-auto max-w-[1100px] p-6 text-gray-900">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Hero Admin</h1>
+            <p className="text-sm text-gray-700">
+              Upload / reorder slides and create product & service cards.
+            </p>
           </div>
+          <button
+            onClick={logout}
+            className="inline-flex items-center gap-2 rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800"
+          >
+            Logout
+          </button>
+        </div>
 
-          <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {cfg[type as "products" | "technicalServices"].map((s, i) => (
-              <div
-                key={i}
-                className="rounded border border-gray-200 bg-white overflow-hidden shadow-sm"
+        {error && (
+          <div className="mt-4 rounded bg-red-50 text-red-700 px-3 py-2 text-sm whitespace-pre-wrap">
+            {error}
+          </div>
+        )}
+
+        {/* Hero text */}
+        <section className="mt-6 space-y-4">
+          <h2 className="font-semibold">Hero Text</h2>
+          <label className="grid gap-1 text-sm">
+            Title
+            <input
+              value={cfg.title}
+              onChange={(e) => setCfg((p) => ({ ...p, title: e.target.value }))}
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+            />
+          </label>
+          <label className="grid gap-1 text-sm">
+            Subtitle
+            <textarea
+              rows={3}
+              value={cfg.subtitle}
+              onChange={(e) =>
+                setCfg((p) => ({ ...p, subtitle: e.target.value }))
+              }
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+            />
+          </label>
+        </section>
+
+        {/* Products + Services */}
+        {(["products", "technicalServices"] as SlideType[]).map((type) => (
+          <section key={type} className="mt-8">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="font-semibold capitalize">
+                {type === "products" ? "Products" : "Technical Services"}
+              </h2>
+              <button
+                onClick={() =>
+                  setCfg((p) => ({
+                    ...p,
+                    [type]: [...p[type], { title: "", desc: "", alt: "", images: [] }],
+                  }))
+                }
+                className="text-sm rounded bg-green-100 px-3 py-2 text-green-700"
               >
-                <img src={s.src} alt={s.alt} className="w-full h-40 object-cover" />
-                <div className="p-2 space-y-2">
-                  <input
-                    placeholder="Alt text (optional)"
-                    value={s.alt || ""}
-                    onChange={(e) =>
-                      updateAlt(i, e.target.value, type as "products" | "technicalServices")
-                    }
-                    className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-gray-900 text-sm"
-                  />
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                Add Card
+              </button>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-4">
+              {cfg[type].map((s, i) => (
+                <article
+                  key={i}
+                  className="w-[280px] bg-white rounded-xl border border-gray-100 shadow-sm p-3"
+                >
+                  <div className="space-y-2">
+                    <input
+                      placeholder="Title"
+                      value={s.title || ""}
+                      onChange={(e) => updateCard(i, type, "title", e.target.value)}
+                      className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-gray-900 text-sm"
+                    />
+                    <textarea
+                      placeholder="Description"
+                      value={s.desc || ""}
+                      onChange={(e) => updateCard(i, type, "desc", e.target.value)}
+                      className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-gray-900 text-sm"
+                    />
+                    <input
+                      placeholder="Alt text"
+                      value={s.alt || ""}
+                      onChange={(e) => updateCard(i, type, "alt", e.target.value)}
+                      className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-gray-900 text-sm"
+                    />
+                  </div>
+
+                  {/* Upload Images */}
+                  <div className="mt-3">
+                    <label className="inline-flex items-center gap-2 text-sm rounded bg-slate-900 text-white px-3 py-2 cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => uploadCardImages(e.target.files, type, i)}
+                      />
+                      {uploading[type] ? "Uploading..." : "Upload Images"}
+                    </label>
+                  </div>
+
+                  {/* Image previews */}
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {s.images?.map((img, imgIndex) => (
+                      <div key={imgIndex} className="relative">
+                        <img
+                          src={img}
+                          alt=""
+                          className="w-20 h-20 object-cover rounded"
+                        />
+                        <button
+                          onClick={() => removeImage(type, i, imgIndex)}
+                          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full text-xs px-1"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Controls */}
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex gap-2">
                       <button
-                        onClick={() => move(i, -1, type as "products" | "technicalServices")}
+                        onClick={() => moveCard(i, -1, type)}
                         className="px-2 py-1 text-xs rounded bg-slate-100"
                       >
                         ←
                       </button>
                       <button
-                        onClick={() => move(i, 1, type as "products" | "technicalServices")}
+                        onClick={() => moveCard(i, 1, type)}
                         className="px-2 py-1 text-xs rounded bg-slate-100"
                       >
                         →
                       </button>
-                      <button
-                        onClick={() => removeAt(i, type as "products" | "technicalServices")}
-                        className="px-2 py-1 text-xs rounded bg-red-100 text-red-700"
-                      >
-                        Delete
-                      </button>
                     </div>
+                    <button
+                      onClick={() => removeCard(i, type)}
+                      className="px-2 py-1 text-xs rounded bg-red-100 text-red-700"
+                    >
+                      Delete Card
+                    </button>
                   </div>
-                </div>
-              </div>
-            ))}
+                </article>
+              ))}
+            </div>
+          </section>
+        ))}
+
+        {/* CTA Buttons */}
+        <section className="mt-8">
+          <h2 className="font-semibold">CTA Buttons</h2>
+          <div className="mt-3 grid sm:grid-cols-2 gap-4">
+            <label className="grid gap-1 text-sm">
+              Button 1 text
+              <input
+                value={cfg.button1.text}
+                onChange={(e) =>
+                  setCfg((p) => ({
+                    ...p,
+                    button1: { ...p.button1, text: e.target.value },
+                  }))
+                }
+                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+              />
+            </label>
+            <label className="grid gap-1 text-sm">
+              Button 1 link
+              <input
+                value={cfg.button1.href}
+                onChange={(e) =>
+                  setCfg((p) => ({
+                    ...p,
+                    button1: { ...p.button1, href: e.target.value },
+                  }))
+                }
+                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+              />
+            </label>
+            <label className="grid gap-1 text-sm">
+              Button 2 text
+              <input
+                value={cfg.button2.text}
+                onChange={(e) =>
+                  setCfg((p) => ({
+                    ...p,
+                    button2: { ...p.button2, text: e.target.value },
+                  }))
+                }
+                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+              />
+            </label>
+            <label className="grid gap-1 text-sm">
+              Button 2 link
+              <input
+                value={cfg.button2.href}
+                onChange={(e) =>
+                  setCfg((p) => ({
+                    ...p,
+                    button2: { ...p.button2, href: e.target.value },
+                  }))
+                }
+                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+              />
+            </label>
           </div>
         </section>
-      ))}
 
-      {/* CTA Buttons */}
-      <section className="mt-8">
-        <h2 className="font-semibold">CTA Buttons</h2>
-        <div className="mt-3 grid sm:grid-cols-2 gap-4">
-          <label className="grid gap-1 text-sm">
-            Button 1 text
-            <input
-              value={cfg.button1.text}
-              onChange={(e) =>
-                setCfg((p) => ({ ...p, button1: { ...p.button1, text: e.target.value } }))
-              }
-              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
-            />
-          </label>
-          <label className="grid gap-1 text-sm">
-            Button 1 link
-            <input
-              value={cfg.button1.href}
-              onChange={(e) =>
-                setCfg((p) => ({ ...p, button1: { ...p.button1, href: e.target.value } }))
-              }
-              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
-            />
-          </label>
-          <label className="grid gap-1 text-sm">
-            Button 2 text
-            <input
-              value={cfg.button2.text}
-              onChange={(e) =>
-                setCfg((p) => ({ ...p, button2: { ...p.button2, text: e.target.value } }))
-              }
-              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
-            />
-          </label>
-          <label className="grid gap-1 text-sm">
-            Button 2 link
-            <input
-              value={cfg.button2.href}
-              onChange={(e) =>
-                setCfg((p) => ({ ...p, button2: { ...p.button2, href: e.target.value } }))
-              }
-              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
-            />
-          </label>
+        <div className="mt-8">
+          <button
+            onClick={save}
+            disabled={saving}
+            className="rounded bg-blue-600 text-white px-4 py-2 disabled:opacity-50"
+          >
+            {saving ? "Saving..." : "Save changes"}
+          </button>
         </div>
-      </section>
-
-      <div className="mt-8">
-        <button
-          onClick={save}
-          disabled={saving}
-          className="rounded bg-blue-600 text-white px-4 py-2 disabled:opacity-50"
-        >
-          {saving ? "Saving..." : "Save changes"}
-        </button>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
