@@ -500,7 +500,7 @@ export default function Page() {
       ].map((item, index) => (
         <span
           key={index}
-          className="text-lg md:text-xl font-medium mx-6 text-gray-700"
+          className="text-lg md:text-xl font-medium mx-6 text-gray-600"
         >
           {item}
         </span>
