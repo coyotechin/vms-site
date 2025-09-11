@@ -7,7 +7,8 @@ type Slide = { src: string; alt?: string };
 type HeroConfig = {
   title: string;
   subtitle: string;
-  slides: Slide[];
+  products: Slide[];
+  technicalServices: Slide[];
   button1: { text: string; href: string };
   button2: { text: string; href: string };
 };
@@ -16,20 +17,19 @@ const DEFAULT_CFG: HeroConfig = {
   title: "Lorem ipsum dolor sit amet consectetur.",
   subtitle:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  slides: [],
+  products: [],
+  technicalServices: [],
   button1: { text: "Get Quote", href: "#cta" },
   button2: { text: "View Catalogue", href: "#catalogues" },
 };
 
 export default function AdminHeroPage() {
   const router = useRouter();
-
   const [cfg, setCfg] = useState<HeroConfig>(DEFAULT_CFG);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // (Optional) simple guard for the demo
   useEffect(() => {
     if (typeof window === "undefined") return;
     const role = localStorage.getItem("role");
@@ -43,7 +43,7 @@ export default function AdminHeroPage() {
     try {
       localStorage.removeItem("role");
       localStorage.removeItem("email");
-      localStorage.removeItem("isAdmin"); // legacy flag
+      localStorage.removeItem("isAdmin");
     } catch {}
     router.push("/login");
   };
@@ -64,9 +64,11 @@ export default function AdminHeroPage() {
         const data = await fetchJson("/api/hero");
         const merged: HeroConfig = {
           title: typeof data?.title === "string" ? data.title : DEFAULT_CFG.title,
-          subtitle:
-            typeof data?.subtitle === "string" ? data.subtitle : DEFAULT_CFG.subtitle,
-          slides: Array.isArray(data?.slides) ? data.slides : [],
+          subtitle: typeof data?.subtitle === "string" ? data.subtitle : DEFAULT_CFG.subtitle,
+          products: Array.isArray(data?.products) ? data.products : [],
+          technicalServices: Array.isArray(data?.technicalServices)
+            ? data.technicalServices
+            : [],
           button1: { ...DEFAULT_CFG.button1, ...(data?.button1 || {}) },
           button2: { ...DEFAULT_CFG.button2, ...(data?.button2 || {}) },
         };
@@ -78,7 +80,10 @@ export default function AdminHeroPage() {
     })();
   }, []);
 
-  const uploadFiles = async (files: FileList | null) => {
+  const uploadFiles = async (
+    files: FileList | null,
+    type: "products" | "technicalServices"
+  ) => {
     if (!files || !files.length) return;
     setUploading(true);
     setError(null);
@@ -94,7 +99,10 @@ export default function AdminHeroPage() {
         if (!res.ok || !data?.ok) throw new Error(data?.error || "Upload failed");
         newSlides.push({ src: data.src, alt: f.name });
       }
-      setCfg((p) => ({ ...p, slides: [...p.slides, ...newSlides] }));
+      setCfg((p) => ({
+        ...p,
+        [type]: [...p[type], ...newSlides],
+      }));
     } catch (e: any) {
       setError(e?.message || "Upload failed");
     } finally {
@@ -102,23 +110,23 @@ export default function AdminHeroPage() {
     }
   };
 
-  const removeAt = (i: number) =>
-    setCfg((p) => ({ ...p, slides: p.slides.filter((_, j) => j !== i) }));
+  const removeAt = (i: number, type: "products" | "technicalServices") =>
+    setCfg((p) => ({ ...p, [type]: p[type].filter((_, j) => j !== i) }));
 
-  const move = (i: number, dir: -1 | 1) =>
+  const move = (i: number, dir: -1 | 1, type: "products" | "technicalServices") =>
     setCfg((p) => {
-      const arr = [...p.slides];
+      const arr = [...p[type]];
       const j = i + dir;
       if (j < 0 || j >= arr.length) return p;
       [arr[i], arr[j]] = [arr[j], arr[i]];
-      return { ...p, slides: arr };
+      return { ...p, [type]: arr };
     });
 
-  const updateAlt = (i: number, alt: string) =>
+  const updateAlt = (i: number, alt: string, type: "products" | "technicalServices") =>
     setCfg((p) => {
-      const arr = [...p.slides];
+      const arr = [...p[type]];
       arr[i] = { ...arr[i], alt };
-      return { ...p, slides: arr };
+      return { ...p, [type]: arr };
     });
 
   const save = async () => {
@@ -144,26 +152,18 @@ export default function AdminHeroPage() {
   };
 
   return (
-    <main className="mx-auto max-w-[1100px] p-6">
-      {/* Top bar with Logout */}
+    <main className="mx-auto max-w-[1100px] p-6 bg-white text-gray-900">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Hero Admin</h1>
-          <p className="text-sm text-slate-600">
-            Upload / reorder slides and edit the hero texts & buttons.
+          <p className="text-sm text-gray-700">
+            Upload / reorder slides and edit hero texts & buttons.
           </p>
         </div>
         <button
           onClick={logout}
           className="inline-flex items-center gap-2 rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800"
-          aria-label="Logout"
-          title="Logout"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" strokeWidth="2" />
-            <path d="M10 17l5-5-5-5" stroke="currentColor" strokeWidth="2" />
-            <path d="M15 12H3" stroke="currentColor" strokeWidth="2" />
-          </svg>
           Logout
         </button>
       </div>
@@ -174,84 +174,93 @@ export default function AdminHeroPage() {
         </div>
       )}
 
-      {/* Hero text */}
+      {/* Hero Text */}
       <section className="mt-6 space-y-4">
         <h2 className="font-semibold">Hero Text</h2>
         <label className="grid gap-1 text-sm">
-          Title (big line)
+          Title
           <input
             value={cfg.title}
             onChange={(e) => setCfg((p) => ({ ...p, title: e.target.value }))}
-            className="rounded-md border px-3 py-2"
+            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
           />
         </label>
         <label className="grid gap-1 text-sm">
-          Subtitle (small line)
+          Subtitle
           <textarea
             rows={3}
             value={cfg.subtitle}
             onChange={(e) => setCfg((p) => ({ ...p, subtitle: e.target.value }))}
-            className="rounded-md border px-3 py-2"
+            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
           />
         </label>
       </section>
 
-      {/* Slides */}
-      <section className="mt-8">
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold">Slides</h2>
-          <label className="inline-flex items-center gap-2 text-sm rounded bg-slate-900 text-white px-3 py-2 cursor-pointer">
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={(e) => uploadFiles(e.target.files)}
-            />
-            {uploading ? "Uploading..." : "Add images"}
-          </label>
-        </div>
-
-        {cfg.slides.length === 0 && (
-          <div className="mt-3 text-sm text-slate-500">
-            No slides yet — upload some images.
+      {/* Products & Technical Services */}
+      {["products", "technicalServices"].map((type) => (
+        <section key={type} className="mt-8">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="font-semibold capitalize">
+              {type === "products" ? "Products" : "Technical Services"}
+            </h2>
+            <label className="inline-flex items-center gap-2 text-sm rounded bg-slate-900 text-white px-3 py-2 cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) =>
+                  uploadFiles(e.target.files, type as "products" | "technicalServices")
+                }
+              />
+              {uploading ? "Uploading..." : `Add ${type === "products" ? "product" : "service"} images`}
+            </label>
           </div>
-        )}
 
-        <ul className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {cfg.slides.map((s, i) => (
-            <li key={s.src} className="rounded border border-slate-200 overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={s.src} alt={s.alt || `Slide ${i + 1}`} className="w-full h-40 object-cover" />
-              <div className="p-2 space-y-2">
-                <input
-                  placeholder="Alt text (optional)"
-                  value={s.alt || ""}
-                  onChange={(e) => updateAlt(i, e.target.value)}
-                  className="w-full rounded border px-2 py-1 text-sm"
-                />
-                <div className="flex items-center justify-between">
-                  <div className="text-xs text-slate-600 truncate">{s.src}</div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => move(i, -1)} className="px-2 py-1 text-xs rounded bg-slate-100">
-                      ←
-                    </button>
-                    <button onClick={() => move(i, 1)} className="px-2 py-1 text-xs rounded bg-slate-100">
-                      →
-                    </button>
-                    <button
-                      onClick={() => removeAt(i)}
-                      className="px-2 py-1 text-xs rounded bg-red-100 text-red-700"
-                    >
-                      Delete
-                    </button>
+          <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {cfg[type as "products" | "technicalServices"].map((s, i) => (
+              <div
+                key={i}
+                className="rounded border border-gray-200 bg-white overflow-hidden shadow-sm"
+              >
+                <img src={s.src} alt={s.alt} className="w-full h-40 object-cover" />
+                <div className="p-2 space-y-2">
+                  <input
+                    placeholder="Alt text (optional)"
+                    value={s.alt || ""}
+                    onChange={(e) =>
+                      updateAlt(i, e.target.value, type as "products" | "technicalServices")
+                    }
+                    className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-gray-900 text-sm"
+                  />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => move(i, -1, type as "products" | "technicalServices")}
+                        className="px-2 py-1 text-xs rounded bg-slate-100"
+                      >
+                        ←
+                      </button>
+                      <button
+                        onClick={() => move(i, 1, type as "products" | "technicalServices")}
+                        className="px-2 py-1 text-xs rounded bg-slate-100"
+                      >
+                        →
+                      </button>
+                      <button
+                        onClick={() => removeAt(i, type as "products" | "technicalServices")}
+                        className="px-2 py-1 text-xs rounded bg-red-100 text-red-700"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+            ))}
+          </div>
+        </section>
+      ))}
 
       {/* CTA Buttons */}
       <section className="mt-8">
@@ -264,7 +273,7 @@ export default function AdminHeroPage() {
               onChange={(e) =>
                 setCfg((p) => ({ ...p, button1: { ...p.button1, text: e.target.value } }))
               }
-              className="rounded-md border px-3 py-2"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
             />
           </label>
           <label className="grid gap-1 text-sm">
@@ -274,7 +283,7 @@ export default function AdminHeroPage() {
               onChange={(e) =>
                 setCfg((p) => ({ ...p, button1: { ...p.button1, href: e.target.value } }))
               }
-              className="rounded-md border px-3 py-2"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
             />
           </label>
           <label className="grid gap-1 text-sm">
@@ -284,7 +293,7 @@ export default function AdminHeroPage() {
               onChange={(e) =>
                 setCfg((p) => ({ ...p, button2: { ...p.button2, text: e.target.value } }))
               }
-              className="rounded-md border px-3 py-2"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
             />
           </label>
           <label className="grid gap-1 text-sm">
@@ -294,7 +303,7 @@ export default function AdminHeroPage() {
               onChange={(e) =>
                 setCfg((p) => ({ ...p, button2: { ...p.button2, href: e.target.value } }))
               }
-              className="rounded-md border px-3 py-2"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
             />
           </label>
         </div>
