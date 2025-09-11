@@ -660,6 +660,77 @@ export default function Page() {
   </div>
 </section>
 
+{/*Services Carousel*/}
+<section id="services" className="py-16 bg-gray-50">
+  <div className="mx-auto max-w-[1200px] px-4 md:px-6">
+    <div className="flex items-end justify-between mb-4">
+      <h3 className="text-2xl font-semibold text-navy-800">Technical Services — scroll-snap — 2×2 image blocks ×12</h3>
+      <div className="text-xs text-navy-900/70">Manual scroll • inertial • Fallback grid (no JS)</div>
+    </div>
+    <div className="relative">
+      <div id="svcTrack" className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hidden scroll-pl-6 scroll-pr-6 motion-safe:scroll-smooth" role="list">
+        {/*sample cards */}
+        <article className="group relative snap-start shrink-0 w-[260px] bg-white rounded-xl shadow-elev1 hover:shadow-elev3 transition hover:scale-[1.02]" role="article">
+          <div className="grid grid-cols-2 gap-1 aspect-[4/3] p-2">
+            <div className="rounded bg-[#E6F0FA]"></div><div className="rounded bg-[#D2E6F5]"></div>
+            <div className="rounded bg-[#EBF5FF]"></div><div className="rounded bg-[#DCEBFA]"></div>
+          </div>
+          <div className="p-3">
+            <h4 className="font-semibold text-navy-900 text-sm">Lorem ipsum</h4>
+            <p className="text-xs text-navy-900/70 mt-1">Lorem ipsum dolor sit amet elit sed do.</p>
+            <button className="mt-3 text-ocean-600 text-sm underline underline-offset-2">→ lorem</button>
+          </div>
+          <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition grid place-items-center rounded-xl bg-navy-900/70 text-white text-sm">Hover / Touch</div>
+        </article>
+        <article className="group relative snap-start shrink-0 w-[260px] bg-white rounded-xl shadow-elev1 hover:shadow-elev3 transition hover:scale-[1.02]" role="article">
+          <div className="grid grid-cols-2 gap-1 aspect-[4/3] p-2">
+            <div className="rounded bg-[#E6F0FA]"></div><div className="rounded bg-[#D2E6F5]"></div>
+            <div className="rounded bg-[#EBF5FF]"></div><div className="rounded bg-[#DCEBFA]"></div>
+          </div>
+          <div className="p-3">
+            <h4 className="font-semibold text-navy-900 text-sm">Lorem ipsum</h4>
+            <p className="text-xs text-navy-900/70 mt-1">Lorem ipsum dolor sit amet elit sed do.</p>
+            <button className="mt-3 text-ocean-600 text-sm underline underline-offset-2">→ lorem</button>
+          </div>
+          <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition grid place-items-center rounded-xl bg-navy-900/70 text-white text-sm">Hover / Touch</div>
+        </article>
+        <article className="group relative snap-start shrink-0 w-[260px] bg-white rounded-xl shadow-elev1 hover:shadow-elev3 transition hover:scale-[1.02]" role="article">
+          <div className="grid grid-cols-2 gap-1 aspect-[4/3] p-2">
+            <div className="rounded bg-[#E6F0FA]"></div><div className="rounded bg-[#D2E6F5]"></div>
+            <div className="rounded bg-[#EBF5FF]"></div><div className="rounded bg-[#DCEBFA]"></div>
+          </div>
+          <div className="p-3">
+            <h4 className="font-semibold text-navy-900 text-sm">Lorem ipsum</h4>
+            <p className="text-xs text-navy-900/70 mt-1">Lorem ipsum dolor sit amet elit sed do.</p>
+            <button className="mt-3 text-ocean-600 text-sm underline underline-offset-2">→ lorem</button>
+          </div>
+          <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition grid place-items-center rounded-xl bg-navy-900/70 text-white text-sm">Hover / Touch</div>
+        </article>
+        <article className="group relative snap-start shrink-0 w-[260px] bg-white rounded-xl shadow-elev1 hover:shadow-elev3 transition hover:scale-[1.02]" role="article">
+          <div className="grid grid-cols-2 gap-1 aspect-[4/3] p-2">
+            <div className="rounded bg-[#E6F0FA]"></div><div className="rounded bg-[#D2E6F5]"></div>
+            <div className="rounded bg-[#EBF5FF]"></div><div className="rounded bg-[#DCEBFA]"></div>
+          </div>
+          <div className="p-3">
+            <h4 className="font-semibold text-navy-900 text-sm">Lorem ipsum</h4>
+            <p className="text-xs text-navy-900/70 mt-1">Lorem ipsum dolor sit amet elit sed do.</p>
+            <button className="mt-3 text-ocean-600 text-sm underline underline-offset-2">→ lorem</button>
+          </div>
+          <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition grid place-items-center rounded-xl bg-navy-900/70 text-white text-sm">Hover / Touch</div>
+        </article>
+      </div>
+      <div className="mt-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button data-scroll="#svcTrack" data-dir="-1" className="px-3 py-2 rounded bg-white hover:bg-gray-50 border border-gray-100">◀</button>
+          <button data-scroll="#svcTrack" data-dir="1" className="px-3 py-2 rounded bg-white hover:bg-gray-50 border border-gray-100">▶</button>
+        </div>
+        <span className="text-xs text-navy-900/70">Keyboard focusable • arrows optional</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 
         {/* CTA */}
         <section id="cta" className="py-20 relative">
