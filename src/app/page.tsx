@@ -527,13 +527,12 @@ export default function Page() {
              <img 
   src="/lob.png" 
   alt="About Goa Paints" 
-  className="w-full h-auto rounded-[12px] object-cover"
+  className="w-full h-auto rounded-[12px] object-cover relative left-50"
 />
-
             </div>
           </div>
         </section>
-        {/* Certificate */}
+  {/* Certificate */}
 <section className="relative text-white h-60 flex items-center">
   <div className="absolute inset-0 bg-[linear-gradient(120deg,#13294b,#1f4e79)]"></div>
 
@@ -541,7 +540,10 @@ export default function Page() {
     {/* Left side text + button */}
     <div className="flex items-center gap-4">
       <p className="text-lg md:text-xl">Goa Paints Authorized Distributor, For more details</p>
-      <button className="flex items-center gap-2 bg-white text-[#1f4e79] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">
+      <a
+        href="#certificate-section"
+        className="flex items-center gap-2 bg-white text-[#1f4e79] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition"
+      >
         Click here
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -552,7 +554,7 @@ export default function Page() {
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
-      </button>
+      </a>
     </div>
 
     {/* KPI image preview */}
@@ -574,8 +576,19 @@ export default function Page() {
   </div>
 </section>
 
-
-
+{/* Target section */}
+<section
+  id="certificate-section"
+  className="py-20 mx-auto max-w-[1200px] px-4 md:px-6"
+>
+  <h2 className="text-2xl md:text-3xl font-bold text-[#13294b] mb-4">
+    Certificate Details
+  </h2>
+  <p className="text-base md:text-lg text-[#0a1a2f]/80 leading-7">
+    Here you can showcase the certificate details, information about your
+    authorization, or display more images/documents related to Goa Paints.
+  </p>
+</section>
 
         {/* Products */}
         <section id="products" className="py-16 lg:py-20">
