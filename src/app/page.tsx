@@ -539,34 +539,22 @@ export default function Page() {
 </section>
 
 
-  {/* Certificate */}
-<section className="relative text-white h-auto md:h-60 flex items-center py-6 md:py-0">
+  <section className="relative text-white h-auto md:h-60 flex items-center py-6 md:py-0">
   <div className="absolute inset-0 bg-[linear-gradient(120deg,#13294b,#1f4e79)]"></div>
 
   <div className="relative mx-auto max-w-[1200px] px-4 md:px-6 flex flex-col md:flex-row items-center justify-between w-full gap-6">
     
-    {/* Left side text + button */}
     <div className="flex flex-col items-center md:items-start gap-3 text-center md:text-left">
       <p className="text-lg md:text-xl">
-        Goa Paints Authorized Distributor, For more details
+        Goa Paints Authorized Distributor, <span className="text-yellow-300 font-semibold">For more details</span>
       </p>
       <a
         href="#"
-        className="flex items-center gap-2 bg-white text-[#1f4e79] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition"
+        className="text-white underline hover:text-yellow-300 transition"
       >
         Click here
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
       </a>
     </div>
-
     {/* KPI image preview */}
     <div className="relative group cursor-pointer mt-6 md:mt-0 flex justify-center md:justify-end w-full md:w-auto">
       <img
@@ -585,7 +573,6 @@ export default function Page() {
     </div>
   </div>
 </section>
-
 
 {/* Target section */}
 <section
