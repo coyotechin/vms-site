@@ -391,12 +391,12 @@ const loadHero = async () => {
             className={`hidden lg:flex items-center gap-6 justify-end pr-4 md:pr-6 max-w-[1200px] w-full ml-auto
               ${scrolled ? "text-black" : "text-white"} transition-colors duration-300`}
           >
-            <a href="#home" className="hover:text-gray-500 rounded">Home</a>
-            <a href="/about" className="hover:text-gray-500 rounded">About Us</a>
+            <a href="#home" className="hover:text-black rounded">Home</a>
+            <a href="/about" className="hover:text-black rounded">About Us</a>
 
             {/* Products Dropdown */}
             <div className="relative group">
-              <button className="hover:text-gray-500 rounded">Products</button>
+              <button className="hover:text-black rounded">Products</button>
               <div className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-all duration-200 bg-white text-[#0a1a2f] rounded shadow-lg min-w-[220px] z-50">
                 <ul className="p-2">
                   {[
@@ -424,7 +424,7 @@ const loadHero = async () => {
 
             {/* Technical Services Dropdown */}
             <div className="relative group">
-              <button className="hover:text-gray-500 rounded">Technical Services</button>
+              <button className="hover:text-black rounded">Technical Services</button>
               <div className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-all duration-200 bg-white text-[#0a1a2f] rounded shadow-lg min-w-[220px] z-50">
                 <ul className="p-2">
                   {[
@@ -449,10 +449,10 @@ const loadHero = async () => {
               </div>
             </div>
 
-            <a href="#exports" className="hover:text-gray-500 rounded">Exports</a>
-            <a href="#enquiry" className="hover:text-gray-500 rounded">Enquiry</a>
-            <a href="#vendor" className="hover:text-gray-500 rounded">Vendor Registration</a>
-            <a href="#cta" className="hover:text-gray-500 rounded">Contact Us</a>
+            <a href="#exports" className="hover:text-black rounded">Exports</a>
+            <a href="#enquiry" className="hover:text-black rounded">Enquiry</a>
+            <a href="#vendor" className="hover:text-black rounded">Vendor Registration</a>
+            <a href="#cta" className="hover:text-black rounded">Contact Us</a>
           </nav>
 
           {/* Mobile menu toggle (right) */}
