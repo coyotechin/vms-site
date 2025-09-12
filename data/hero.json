@@ -1,30 +1,22 @@
 {
-  "title": "Lorem vbchfghnbghv",
-  "subtitle": "Lorem dfhgfjhfytgj",
+  "title": "Lorem vbchfghnbghvhjb",
+  "subtitle": "Lorem dfhgfjhfytgjdnmcb",
   "slides": [
     {
-      "src": "/uploads/1757422970069-Screenshot_1_.png",
-      "alt": "Screenshot (1).png"
+      "src": "/uploads/1757670590913-WhatsApp_Image_2025-09-12_at_15.19.36_26fc4f22.jpg",
+      "alt": "WhatsApp Image 2025-09-12 at 15.19.36_26fc4f22.jpg"
     },
     {
-      "src": "/uploads/1757422970366-Screenshot_2_.png",
-      "alt": "Screenshot (2).png"
-    },
-    {
-      "src": "/uploads/1757501145090-1ccc1460563b226803b0e6d74feb6030.jpg",
-      "alt": "1ccc1460563b226803b0e6d74feb6030.jpg"
-    },
-    {
-      "src": "/uploads/1757501144808-0ac1d8f0-c20b-408a-9288-6b9725a2fe7a.jpg",
-      "alt": "0ac1d8f0-c20b-408a-9288-6b9725a2fe7a.jpg"
+      "src": "/uploads/1757670591285-WhatsApp_Image_2025-09-12_at_15.18.55_454d1530.jpg",
+      "alt": "WhatsApp Image 2025-09-12 at 15.18.55_454d1530.jpg"
     }
   ],
   "button1": {
     "text": "GET",
-    "href": "#123"
+    "href": "#1234"
   },
   "button2": {
     "text": "View Catalogue",
-    "href": "#catalogues"
+    "href": "#cataloguess"
   }
 }

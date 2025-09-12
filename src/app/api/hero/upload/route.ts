@@ -10,6 +10,16 @@ export async function POST(req: Request) {
     const file = form.get("file") as File | null;
     if (!file) return NextResponse.json({ ok: false, error: "No file" }, { status: 400 });
 
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      return NextResponse.json({ ok: false, error: "Only image files are allowed" }, { status: 400 });
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ ok: false, error: "File size must be less than 5MB" }, { status: 400 });
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const uploadsDir = path.join(process.cwd(), "public", "uploads");
