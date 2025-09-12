@@ -470,13 +470,13 @@ const loadHero = async () => {
         </div>
 
         {/* Mobile dropdown */}
-        <div className={`border-t border-gray-100 bg-white lg:hidden ${menuOpen ? "" : "hidden"}`}>
+        <div className={`border-t border-gray-100 bg-white text-slate-900 lg:hidden ${menuOpen ? "" : "hidden"}`}>
           <div id="mnav" className="mx-auto max-w-[1200px] px-4 md:px-6 py-3 flex flex-col gap-2">
-            <a href="#home" className="py-2" onClick={() => setMenuOpen(false)}>Home</a>
-            <a href="/about" className="py-2" onClick={() => setMenuOpen(false)}>About Us</a>
+            <a href="#home" className="py-2 text-slate-900 hover:text-slate-600"  onClick={() => setMenuOpen(false)}>Home</a>
+            <a href="/about" className="py-2 text-slate-900 hover:text-slate-600" onClick={() => setMenuOpen(false)}>About Us</a>
 
             <details className="group py-2">
-              <summary className="cursor-pointer select-none">Products</summary>
+              <summary className="cursor-pointer select-none text-slate-900">Products</summary>
               <div className="pl-4 mt-1 flex flex-col gap-1">
                 {[
                   "Fresh, Frozen & Dry Provisions",
@@ -493,7 +493,7 @@ const loadHero = async () => {
                   "Water Treatment Systems",
                   "Other Supplies",
                 ].map((item) => (
-                  <a key={item} href="#products" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>
+                  <a key={item} href="#products" className="py-1 pl-2 rounded text-slate-900 hover:bg-gray-100" onClick={() => setMenuOpen(false)}>
                     {item}
                   </a>
                 ))}
@@ -517,17 +517,17 @@ const loadHero = async () => {
                   "Crew Training and Support",
                   "Miscellaneous Services",
                 ].map((item) => (
-                  <a key={item} href="#services" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>
+                  <a key={item} href="#services" className="py-1 pl-2 rounded text-slate-900 hover:bg-gray-100" onClick={() => setMenuOpen(false)}>
                     {item}
                   </a>
                 ))}
               </div>
             </details>
 
-            <a href="#exports" className="py-2" onClick={() => setMenuOpen(false)}>Exports</a>
-            <a href="#enquiry" className="py-2" onClick={() => setMenuOpen(false)}>Enquiry</a>
-            <a href="#vendor" className="py-2" onClick={() => setMenuOpen(false)}>Vendor Registration</a>
-            <a href="#cta" className="py-2" onClick={() => setMenuOpen(false)}>Contact Us</a>
+            <a href="#exports" className="py-2 text-slate-900 hover:text-slate-600" onClick={() => setMenuOpen(false)}>Exports</a>
+            <a href="#enquiry" className="py-2 text-slate-900 hover:text-slate-600" onClick={() => setMenuOpen(false)}>Enquiry</a>
+            <a href="#vendor" className="py-2 text-slate-900 hover:text-slate-600" onClick={() => setMenuOpen(false)}>Vendor Registration</a>
+            <a href="#cta" className="py-2 text-slate-900 hover:text-slate-600" onClick={() => setMenuOpen(false)}>Contact Us</a>
           </div>
         </div>
       </header>
