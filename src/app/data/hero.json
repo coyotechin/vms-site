@@ -5,6 +5,29 @@
       "alt": "Screenshot (1).png"
     }
   ],
+  "products": [
+    {
+      "title": "Product Name",
+      "description": "Product description",
+      "images": ["/uploads/product1.jpg", "/uploads/product2.jpg"],
+      "category": "Product Category",
+      "alt": "Product image alt text"
+    }
+  ],
+  "technicalServices": [
+  {
+    "images": ["/uploads/service1.png", "/uploads/service2.png"],
+    "title": "Service One",
+    "desc": "Description of Service One",
+    "alt": "Service One Image"
+  },
+  {
+    "images": ["/uploads/service3.png"],
+    "title": "Service Two",
+    "desc": "Description of Service Two",
+    "alt": "Service Two Image"
+  }
+],
   "button1": {
     "text": "GET",
     "href": "#123"

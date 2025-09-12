@@ -11,6 +11,28 @@
       "alt": "WhatsApp Image 2025-09-12 at 15.18.55_454d1530.jpg"
     }
   ],
+  "products": [
+    {
+      "title": "ABC",
+      "desc": "123456",
+      "alt": "nes",
+      "images": [
+        "/uploads/1757675250964-Black_and_White_Simple_Art_Director_LinkedIn_Banner_2_.png",
+        "/uploads/1757675251432-Black_and_White_Simple_Art_Director_LinkedIn_Banner_1_.png"
+      ]
+    }
+  ],
+  "technicalServices": [
+    {
+      "title": "nmsdbcdhs",
+      "desc": "mnefdbshfbks",
+      "alt": ",jsjrsdf",
+      "images": [
+        "/uploads/1757675751410-Black_and_White_Simple_Art_Director_LinkedIn_Banner_2_.png",
+        "/uploads/1757675751885-Black_and_White_Simple_Art_Director_LinkedIn_Banner_1_.png"
+      ]
+    }
+  ],
   "button1": {
     "text": "GET",
     "href": "#1234"

@@ -7,10 +7,14 @@ export const dynamic = "force-dynamic"; // don't cache route
 const DATA_PATH = path.join(process.cwd(), "data", "hero.json");
 
 type Slide = { src: string; alt?: string };
+type Card = { title: string; desc: string; alt: string; images: string[] };
+
 type HeroConfig = {
   title: string;
   subtitle: string;
   slides: Slide[];
+  products: Card[];
+  technicalServices: Card[];
   button1: { text: string; href: string };
   button2: { text: string; href: string };
 };
@@ -20,6 +24,8 @@ const DEFAULT_CFG: HeroConfig = {
   subtitle:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   slides: [],
+  products: [],
+  technicalServices: [],
   button1: { text: "Get Quote", href: "#cta" },
   button2: { text: "View Catalogue", href: "#catalogues" },
 };
@@ -39,11 +45,15 @@ async function readCfg(): Promise<HeroConfig> {
     const raw = await fs.readFile(DATA_PATH, "utf8");
     const data = JSON.parse(raw);
 
-    // Back-compat: accept old shape { heroImage }
     const slides: Slide[] = Array.isArray(data?.slides)
       ? data.slides
       : data?.heroImage
       ? [{ src: data.heroImage }]
+      : [];
+
+    const products: Card[] = Array.isArray(data?.products) ? data.products : [];
+    const technicalServices: Card[] = Array.isArray(data?.technicalServices)
+      ? data.technicalServices
       : [];
 
     return {
@@ -51,6 +61,8 @@ async function readCfg(): Promise<HeroConfig> {
       subtitle:
         typeof data?.subtitle === "string" ? data.subtitle : DEFAULT_CFG.subtitle,
       slides,
+      products,
+      technicalServices,
       button1: {
         text: data?.button1?.text ?? DEFAULT_CFG.button1.text,
         href: data?.button1?.href ?? DEFAULT_CFG.button1.href,
@@ -75,13 +87,13 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
     const current = await readCfg();
 
-    // sanitize + merge
     const next: HeroConfig = {
       title:
-        typeof body?.title === "string" ? body.title : current.title ?? DEFAULT_CFG.title,
+        typeof body?.title === "string"
+          ? body.title
+          : current.title ?? DEFAULT_CFG.title,
       subtitle:
         typeof body?.subtitle === "string"
           ? body.subtitle
@@ -94,6 +106,22 @@ export async function POST(req: Request) {
               alt: typeof s.alt === "string" ? s.alt : undefined,
             }))
         : current.slides,
+      products: Array.isArray(body?.products)
+        ? body.products.map((c: any) => ({
+            title: c.title ?? "",
+            desc: c.desc ?? "",
+            alt: c.alt ?? "",
+            images: Array.isArray(c.images) ? c.images : [],
+          }))
+        : current.products,
+      technicalServices: Array.isArray(body?.technicalServices)
+        ? body.technicalServices.map((c: any) => ({
+            title: c.title ?? "",
+            desc: c.desc ?? "",
+            alt: c.alt ?? "",
+            images: Array.isArray(c.images) ? c.images : [],
+          }))
+        : current.technicalServices,
       button1: {
         text:
           typeof body?.button1?.text === "string"

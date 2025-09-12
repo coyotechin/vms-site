@@ -1,10 +1,12 @@
 "use client";
 
 import Head from "next/head";
-import { useEffect, useRef, useState } from "react";
+import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useEffect, useRef, useState } from "react";
 
 type Slide = { src: string; alt?: string };
 type HeroConfig = {
+  products: any;
+  technicalServices: any;
   title: string;
   subtitle: string;
   slides: Slide[];
@@ -14,11 +16,12 @@ type HeroConfig = {
 
 const DEFAULT_CFG: HeroConfig = {
   title: "Lorem ipsum dolor sit amet consectetur.",
-  subtitle:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  subtitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   slides: [],
   button1: { text: "Get Quote", href: "#cta" },
   button2: { text: "View Catalogue", href: "#catalogues" },
+  technicalServices: [],
+  products: []
 };
 
 export default function Page() {
@@ -52,29 +55,40 @@ export default function Page() {
     return JSON.parse(text);
   };
 
-  const loadHero = async () => {
-    try {
-      const data = await fetchJson("/api/hero");
-      const slides: Slide[] = Array.isArray(data?.slides)
-        ? data.slides
-        : data?.heroImage
-        ? [{ src: data.heroImage }]
-        : [];
-      const merged: HeroConfig = {
-        title: typeof data?.title === "string" ? data.title : DEFAULT_CFG.title,
-        subtitle:
-          typeof data?.subtitle === "string" ? data.subtitle : DEFAULT_CFG.subtitle,
-        slides,
-        button1: { ...DEFAULT_CFG.button1, ...(data?.button1 || {}) },
-        button2: { ...DEFAULT_CFG.button2, ...(data?.button2 || {}) },
-      };
-      setCfg(merged);
-      setImgVersion(Date.now()); // cache-bust images
-    } catch {
-      setCfg((p) => ({ ...DEFAULT_CFG, slides: p.slides.length ? p.slides : DEFAULT_CFG.slides }));
-    }
-  };
+  // Update your loadHero function to handle the actual data structure
+// Update your loadHero function to handle products
+const loadHero = async () => {
+  try {
+    const data = await fetchJson("/api/hero");
+    
+    // Handle the actual data structure from your admin
+    const slides: Slide[] = Array.isArray(data?.slides)
+      ? data.slides
+      : data?.heroImage
+      ? [{ src: data.heroImage }]
+      : [];
 
+    const merged: HeroConfig = {
+      title: typeof data?.title === "string" ? data.title : DEFAULT_CFG.title,
+      subtitle: typeof data?.subtitle === "string" ? data.subtitle : DEFAULT_CFG.subtitle,
+      slides,
+      button1: { ...DEFAULT_CFG.button1, ...(data?.button1 || {}) },
+      button2: { ...DEFAULT_CFG.button2, ...(data?.button2 || {}) },
+      technicalServices: Array.isArray(data?.technicalServices)
+        ? data.technicalServices
+        : DEFAULT_CFG.technicalServices,
+      products: Array.isArray(data?.products) // Add this line
+        ? data.products
+        : DEFAULT_CFG.products // And this line
+    };
+    
+    setCfg(merged);
+    setImgVersion(Date.now());
+  } catch (error) {
+    console.error("Failed to load hero data:", error);
+    setCfg((p) => ({ ...DEFAULT_CFG, slides: p.slides.length ? p.slides : DEFAULT_CFG.slides }));
+  }
+};
   useEffect(() => {
     loadHero();
   }, []);
@@ -203,8 +217,9 @@ export default function Page() {
   
   // Track active image index for each product and service card
   const [productImageIndices, setProductImageIndices] = useState<number[]>([]);
-  const [serviceImageIndices, setServiceImageIndices] = useState<number[]>([]);
-
+  const [serviceImageIndices, setServiceImageIndices] = useState<number[]>(
+  Array(cfg?.technicalServices?.length ?? 0).fill(0)
+);
   useEffect(() => {
     // Initialize image indices for products
     setProductImageIndices(Array(5).fill(0));
@@ -744,75 +759,65 @@ export default function Page() {
         className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hidden scroll-pl-6 scroll-pr-6 motion-safe:scroll-smooth"
         role="list"
       >
-        {Array.from({ length: 5 }).map((_, i) => (
-          <article
-            key={i}
-            className="snap-start shrink-0 w-[260px] bg-white rounded-xl shadow-[0_1px_2px_rgba(0,0,0,.06)] hover:shadow-[0_8px_18px_rgba(0,0,0,.14)] transition hover:scale-[1.02] focus-within:ring-2 ring-[#4fc3f7]"
-            role="article"
-            tabIndex={-1}
-          >
-            {/* Mini horizontal image slider inside the card */}
-            <div className="relative overflow-hidden aspect-[4/3] rounded-t-xl">
-              <div 
-                className="flex transition-transform duration-500 ease-in-out h-full"
-                style={{ transform: `translateX(-${productImageIndices[i] * 100}%)` }}
-              >
-                {[...Array(4)].map((_, j) => (
-                  <div key={j} className="min-w-full h-full">
-                    <img
-                      src={`https://picsum.photos/seed/${i}-${j}/260/200`}
-                      alt={`Product ${i} - ${j}`}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                ))}
+       {cfg.products && cfg.products.length > 0 ? (
+  cfg.products.map((product: any, i: number) => (
+    <article
+      key={i}
+      className="snap-start shrink-0 w-[260px] bg-white rounded-xl shadow-md hover:shadow-lg transition hover:scale-[1.02]"
+      role="article"
+    >
+      {/* Mini horizontal image slider inside the card */}
+      <div className="relative overflow-hidden aspect-[4/3] rounded-t-xl">
+        <div
+          className="flex transition-transform duration-500 ease-in-out h-full"
+          style={{ transform: `translateX(-${(productImageIndices[i] ?? 0) * 100}%)` }}
+        >
+          {Array.isArray(product.images) ? (
+            product.images.map((img: string, j: number) => (
+              <div key={j} className="min-w-full h-full">
+                <img
+                  src={img}
+                  alt={product.alt || `Product ${i} - ${j}`}
+                  className="object-cover w-full h-full"
+                />
               </div>
-              
-              {/* Optional mini slider arrows */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  changeProductImage(i, -1);
-                }}
-                className="absolute top-1/2 left-1 -translate-y-1/2 px-2 py-1 bg-white/70 rounded-full"
-              >
-                ◀
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  changeProductImage(i, 1);
-                }}
-                className="absolute top-1/2 right-1 -translate-y-1/2 px-2 py-1 bg-white/70 rounded-full"
-              >
-                ▶
-              </button>
-              
-              {/* Image indicators */}
-              <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
-                {[...Array(4)].map((_, j) => (
-                  <div
-                    key={j}
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      j === productImageIndices[i] ? 'bg-white' : 'bg-white/50'
-                    }`}
-                  />
-                ))}
-              </div>
+            ))
+          ) : product.image ? (
+            <div className="min-w-full h-full">
+              <img
+                src={product.image}
+                alt={product.alt || `Product ${i}`}
+                className="object-cover w-full h-full"
+              />
             </div>
+          ) : (
+            <div className="min-w-full h-full bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-500">No Image</span>
+            </div>
+          )}
+        </div>
+      </div>
 
-            {/* Card text */}
-            <div className="p-3">
-              <h4 className="font-semibold text-[#0a1a2f] text-sm">Lorem ipsum</h4>
-              <p className="text-xs text-[#0a1a2f]/70 mt-1">
-                Lorem ipsum dolor sit amet elit sed do.
-              </p>
-              <button className="mt-3 text-[#2d6da3] text-sm underline underline-offset-2">
-                → lorem
-              </button>
-            </div>
-          </article>
-        ))}
+      {/* Card text */}
+      <div className="p-3">
+        <h4 className="font-semibold text-[#0a1a2f] text-sm">
+          {product.title || `Product ${i + 1}`}
+        </h4>
+        <p className="text-xs text-[#0a1a2f]/70 mt-1">
+          {product.description || product.desc || "Product description"}
+        </p>
+        <button className="mt-3 text-[#2d6da3] text-sm underline underline-offset-2">
+          → Learn More
+        </button>
+      </div>
+    </article>
+  ))
+) : (
+  <div className="text-center py-8 text-gray-500">
+    No products configured. Please add them in the admin panel.
+  </div>
+)}
+
       </div>
 
       <div className="mt-3 flex items-center justify-between">
@@ -842,7 +847,7 @@ export default function Page() {
   </div>
 </section>
 
-{/*Technical Services*/}
+{/* Technical Services */}
 <section id="technicalServices" className="py-16 bg-gray-50">
   <div className="mx-auto max-w-[1200px] px-4 md:px-6">
     <div className="flex items-end justify-between mb-4">
@@ -859,105 +864,70 @@ export default function Page() {
         className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-pl-6 scroll-pr-6 motion-safe:scroll-smooth"
         role="list"
       >
-        {Array.from({ length: 12 }).map((_, i) => (
-          <article
-            key={i}
-            className="group relative snap-start shrink-0 w-64 bg-white rounded-xl shadow-md hover:shadow-lg transition hover:scale-[1.02]"
-            role="article"
-          >
-            {/* Mini horizontal image slider inside the card */}
-            <div className="relative overflow-hidden aspect-[4/3] rounded-t-xl">
-              <div 
-                className="flex transition-transform duration-500 ease-in-out h-full"
-                style={{ transform: `translateX(-${serviceImageIndices[i] * 100}%)` }}
-              >
-                {[...Array(4)].map((_, j) => (
-                  <div key={j} className="min-w-full h-full">
-                    <img
-                      src={`https://picsum.photos/seed/service-${i}-${j}/260/200`}
-                      alt={`Service ${i} - ${j}`}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                ))}
+        {/* Check if technicalServices exists and has data */}
+        {cfg.technicalServices && cfg.technicalServices.length > 0 ? (
+          cfg.technicalServices.map((service: any, i: number) => (
+            <article
+              key={i}
+              className="group relative snap-start shrink-0 w-64 bg-white rounded-xl shadow-md hover:shadow-lg transition hover:scale-[1.02]"
+              role="article"
+            >
+              <div className="relative overflow-hidden aspect-[4/3] rounded-t-xl">
+                <div
+                  className="flex transition-transform duration-500 ease-in-out h-full"
+                  style={{ transform: `translateX(-${(serviceImageIndices[i] ?? 0) * 100}%)` }}
+                >
+                  {/* Handle both array of images and single image */}
+                  {Array.isArray(service.images) ? (
+                    service.images.map((img: string, j: number) => (
+                      <div key={j} className="min-w-full h-full">
+                        <img
+                          src={img}
+                          alt={service.alt || `Service ${i} - ${j}`}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                    ))
+                  ) : service.image ? (
+                    <div className="min-w-full h-full">
+                      <img
+                        src={service.image}
+                        alt={service.alt || `Service ${i}`}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                  ) : (
+                    <div className="min-w-full h-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-500">No Image</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Optional mini slider arrows */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  changeServiceImage(i, -1);
-                }}
-                className="absolute top-1/2 left-1 -translate-y-1/2 px-2 py-1 bg-white/70 rounded-full"
-              >
-                ◀
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  changeServiceImage(i, 1);
-                }}
-                className="absolute top-1/2 right-1 -translate-y-1/2 px-2 py-1 bg-white/70 rounded-full"
-              >
-                ▶
-              </button>
-              
-              {/* Image indicators */}
-              <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
-                {[...Array(4)].map((_, j) => (
-                  <div
-                    key={j}
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      j === serviceImageIndices[i] ? 'bg-white' : 'bg-white/50'
-                    }`}
-                  />
-                ))}
+              <div className="p-3">
+                <h4 className="font-semibold text-gray-900 text-sm">
+                  {service.title || `Technical Service ${i + 1}`}
+                </h4>
+                <p className="text-xs text-gray-700 mt-1">
+                  {service.description || service.desc || "Technical service description"}
+                </p>
+                <button className="mt-3 text-blue-600 text-sm underline underline-offset-2">
+                  → Learn More
+                </button>
               </div>
-            </div>
-
-            <div className="p-3">
-              <h4 className="font-semibold text-gray-900 text-sm">Lorem ipsum</h4>
-              <p className="text-xs text-gray-700 mt-1">
-                Lorem ipsum dolor sit amet elit sed do.
-              </p>
-              <button className="mt-3 text-blue-600 text-sm underline underline-offset-2">
-                → lorem
-              </button>
-            </div>
-
-            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition grid place-items-center rounded-xl bg-gray-900/70 text-white text-sm">
-              Hover / Touch
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <div className="mt-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => scrollByStep("#servicesTrack", -1)}
-            className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
-          >
-            ◀
-          </button>
-          <button
-            onClick={() => scrollByStep("#servicesTrack", 1)}
-            className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
-          >
-            ▶
-          </button>
-        </div>
-        <span className="text-xs text-gray-700">Card 248–280 px • snap-start</span>
-      </div>
-
-      <div className="mt-4 flex items-center justify-center gap-2">
-        {Array.from({ length: 3 }).map((_, idx) => (
-          <span key={idx} className="h-2 w-2 rounded-full bg-slate-300" />
-        ))}
+            </article>
+          ))
+        ) : (
+          // Fallback if no technical services are configured
+          <div className="text-center py-8 text-gray-500">
+            No technical services configured. Please add them in the admin panel.
+          </div>
+        )}
       </div>
     </div>
   </div>
 </section>
+
 
         {/* VM/CV/Principles */}
         <section className="py-16 bg-white">
