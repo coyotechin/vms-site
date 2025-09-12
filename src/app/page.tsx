@@ -27,6 +27,10 @@ export default function Page() {
 
   // --------- Header: transparent over hero → white after scroll ----------
   const [scrolled, setScrolled] = useState(false);
+
+   // --------- Image preview state ----------
+  const [showPreview, setShowPreview] = useState(false);
+  
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     onScroll();
@@ -391,9 +395,6 @@ export default function Page() {
   </div>
 </header>
 
-
-
-
       <main id="main">
         {/* HERO — starts at very top; header overlays it */}
         <section className="relative text-white">
@@ -558,21 +559,36 @@ export default function Page() {
       </a>
     </div>
     {/* KPI image preview */}
-    <div className="relative group cursor-pointer mt-6 md:mt-0 flex justify-center md:justify-end w-full md:w-auto">
-      <img
-        src="/Certificate.jpg"
-        alt="KPI Preview"
-        className="w-40 md:w-50 h-40 md:h-50 object-contain rounded-lg transition-transform group-hover:scale-110"
-      />
-      {/* Hover preview popup */}
-      <div className="absolute right-0 top-12 hidden group-hover:block z-50">
+<div className="relative cursor-pointer mt-6 md:mt-0 flex justify-center md:justify-end w-full md:w-auto">
+  <img
+    src="/Certificate.jpg"
+    alt="KPI Preview"
+    className="w-40 md:w-50 h-40 md:h-50 object-contain rounded-lg transition-transform hover:scale-110"
+    onClick={() => setShowPreview(!showPreview)}
+  />
+  {/* Click/tap preview popup */}
+  {showPreview && (
+    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setShowPreview(false)}>
+      <div className="relative max-w-full max-h-full">
         <img
           src="/Certificate.jpg"
           alt="KPI Full Preview"
-          className="w-[600px] md:w-[800px] h-auto rounded-lg shadow-lg border border-white/20"
+          className="w-full h-auto rounded-lg shadow-lg border border-white/20"
         />
+        <button
+          className="absolute top-2 right-2 bg-white/90 rounded-full p-1 text-black"
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowPreview(false);
+          }}
+          aria-label="Close preview"
+        >
+          ✕
+        </button>
       </div>
     </div>
+  )}
+</div>
   </div>
 </section>
 
