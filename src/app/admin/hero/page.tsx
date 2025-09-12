@@ -7,6 +7,7 @@ type Slide = { title?: string; desc?: string; alt?: string; images: string[] };
 type HeroConfig = {
   title: string;
   subtitle: string;
+  slides: string[];
   products: Slide[];
   technicalServices: Slide[];
   button1: { text: string; href: string };
@@ -19,6 +20,7 @@ const DEFAULT_CFG: HeroConfig = {
   title: "Lorem ipsum dolor sit amet consectetur.",
   subtitle:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  slides: ["/hero1.jpg", "/hero2.jpg"], // ✅ starter hero images
   products: [],
   technicalServices: [],
   button1: { text: "Get Quote", href: "#cta" },
@@ -68,6 +70,7 @@ export default function AdminHeroPage() {
             typeof data?.subtitle === "string"
               ? data.subtitle
               : DEFAULT_CFG.subtitle,
+          slides: Array.isArray(data?.slides) ? data.slides : [], // ✅ always array
           products: Array.isArray(data?.products) ? data.products : [],
           technicalServices: Array.isArray(data?.technicalServices)
             ? data.technicalServices
@@ -118,6 +121,30 @@ export default function AdminHeroPage() {
     }
   };
 
+  const uploadHeroImages = async (files: FileList | null) => {
+    if (!files?.length) return;
+    setUploading((u) => ({ ...u, hero: true }));
+    setError(null);
+    try {
+      const urls: string[] = [];
+      for (const f of Array.from(files)) {
+        const fd = new FormData();
+        fd.append("file", f);
+        const res = await fetch("/api/hero/upload", { method: "POST", body: fd });
+        const data = await res.json().catch(async () => {
+          throw new Error(await res.text());
+        });
+        if (!res.ok || !data?.ok) throw new Error(data?.error || "Upload failed");
+        urls.push(data.src);
+      }
+      setCfg((p) => ({ ...p, slides: [...(p.slides || []), ...urls] })); // ✅ safe append
+    } catch (e: any) {
+      setError(e?.message || "Upload failed");
+    } finally {
+      setUploading((u) => ({ ...u, hero: false }));
+    }
+  };
+
   const removeImage = (type: SlideType, cardIndex: number, imgIndex: number) =>
     setCfg((p) => {
       const arr = [...p[type]];
@@ -127,6 +154,12 @@ export default function AdminHeroPage() {
       };
       return { ...p, [type]: arr };
     });
+
+  const removeHeroImage = (imgIndex: number) =>
+    setCfg((p) => ({
+      ...p,
+      slides: (p.slides || []).filter((_, i) => i !== imgIndex),
+    }));
 
   const removeCard = (i: number, type: SlideType) =>
     setCfg((p) => ({ ...p, [type]: p[type].filter((_, j) => j !== i) }));
@@ -165,13 +198,9 @@ export default function AdminHeroPage() {
         throw new Error(await res.text());
       });
       if (!res.ok || !data?.ok) throw new Error(data?.error || "Save failed");
-      
-      // Update the image version to force refresh on the home page
+
       localStorage.setItem("hero-updated", Date.now().toString());
-      
-      // Broadcast the change to other tabs/windows
       window.dispatchEvent(new Event("storage"));
-      
       alert("Saved! Changes will be reflected on the home page.");
     } catch (e: any) {
       setError(e?.message || "Save failed");
@@ -203,6 +232,38 @@ export default function AdminHeroPage() {
             {error}
           </div>
         )}
+
+        {/* Hero Slide Images */}
+        <section className="mt-6">
+          <h2 className="font-semibold">Hero Slides</h2>
+          <div className="mt-3 flex flex-wrap gap-4">
+            {(cfg.slides || []).map((src, i) => (
+              <div key={i} className="relative">
+                <img
+                  src={src}
+                  alt=""
+                  className="w-40 h-24 object-cover rounded"
+                />
+                <button
+                  onClick={() => removeHeroImage(i)}
+                  className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full text-xs px-1"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+          <label className="inline-flex items-center gap-2 text-sm rounded bg-slate-900 text-white px-3 py-2 cursor-pointer mt-3">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => uploadHeroImages(e.target.files)}
+            />
+            {uploading.hero ? "Uploading..." : "Upload Hero Images"}
+          </label>
+        </section>
 
         {/* Hero text */}
         <section className="mt-6 space-y-4">
@@ -239,7 +300,10 @@ export default function AdminHeroPage() {
                 onClick={() =>
                   setCfg((p) => ({
                     ...p,
-                    [type]: [...p[type], { title: "", desc: "", alt: "", images: [] }],
+                    [type]: [
+                      ...p[type],
+                      { title: "", desc: "", alt: "", images: [] },
+                    ],
                   }))
                 }
                 className="text-sm rounded bg-green-100 px-3 py-2 text-green-700"
@@ -291,7 +355,7 @@ export default function AdminHeroPage() {
 
                   {/* Image previews */}
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {s.images?.map((img, imgIndex) => (
+                    {(s.images || []).map((img, imgIndex) => (
                       <div key={imgIndex} className="relative">
                         <img
                           src={img}

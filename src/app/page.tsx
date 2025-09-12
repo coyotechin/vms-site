@@ -201,86 +201,6 @@ export default function Page() {
   ];
   const marqueeDup = [...marqueeItems, ...marqueeItems];
 
-  // --------- Auto-scrolling for Products and Technical Services ----------
-  const productsTrackRef = useRef<HTMLDivElement>(null);
-  const servicesTrackRef = useRef<HTMLDivElement>(null);
-  
-  // Auto-scroll for Products
-  useEffect(() => {
-    const track = productsTrackRef.current;
-    if (!track) return;
-    
-    const autoScroll = () => {
-      const scrollAmount = 280; // Width of card + gap
-      const maxScroll = track.scrollWidth - track.clientWidth;
-      
-      if (track.scrollLeft >= maxScroll - 10) {
-        // If at the end, reset to start
-        track.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        // Scroll to next card
-        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
-    };
-    
-    const intervalId = setInterval(autoScroll, 3000);
-    return () => clearInterval(intervalId);
-  }, []);
-  
-  // Auto-scroll for Technical Services
-  useEffect(() => {
-    const track = servicesTrackRef.current;
-    if (!track) return;
-    
-    const autoScroll = () => {
-      const scrollAmount = 280; // Width of card + gap
-      const maxScroll = track.scrollWidth - track.clientWidth;
-      
-      if (track.scrollLeft >= maxScroll - 10) {
-        // If at the end, reset to start
-        track.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        // Scroll to next card
-        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
-    };
-    
-    const intervalId = setInterval(autoScroll, 3000);
-    return () => clearInterval(intervalId);
-  }, []);
-
-  // --------- Auto-scrolling images inside cards ----------
-  const AutoScrollingImages = () => {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    
-    useEffect(() => {
-      const intervalId = setInterval(() => {
-        setCurrentImageIndex(prev => (prev + 1) % 4); // Cycle through 4 images
-      }, 2000);
-      
-      return () => clearInterval(intervalId);
-    }, []);
-    
-    // Sample image colors to cycle through
-    const imageColors = [
-      ["#E6F0FA", "#D2E6F5", "#EBF5FF", "#DCEBFA"],
-      ["#FFE6E6", "#FFD2D2", "#FFEBEB", "#FFDCDC"],
-      ["#E6FFE6", "#D2FFD2", "#EBFFEB", "#DCFFDC"],
-      ["#E6E6FF", "#D2D2FF", "#EBEBFF", "#DCDCFF"]
-    ];
-    
-    const currentColors = imageColors[currentImageIndex];
-    
-    return (
-      <div className="grid grid-cols-2 gap-1 aspect-[4/3] p-2">
-        <div className="rounded" style={{ backgroundColor: currentColors[0] }} />
-        <div className="rounded" style={{ backgroundColor: currentColors[1] }} />
-        <div className="rounded" style={{ backgroundColor: currentColors[2] }} />
-        <div className="rounded" style={{ backgroundColor: currentColors[3] }} />
-      </div>
-    );
-  };
-
   return (
     <>
       {/* Load Roboto */}
@@ -302,174 +222,177 @@ export default function Page() {
       </a>
 
       {/* Header — fixed; transparent at top over hero, solid white after scroll */}
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
-          scrolled ? "bg-white/95 backdrop-blur shadow-sm" : "bg-transparent"
-        }`}
-      >
-        {/* Full-width row (no max-w here) */}
-        <div className="grid grid-cols-[auto_1fr_auto] items-center h-24 w-full">
+    <header
+  className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
+    scrolled ? "bg-white/95 backdrop-blur shadow-sm" : "bg-transparent"
+  }`}
+>
+  {/* Full-width row (no max-w here) */}
+  <div className="grid grid-cols-[auto_1fr_auto] items-center h-24 w-full">
 
-          {/* Logo & ISO — truly left (no container padding) */}
-          {/* Logo & ISO — slight right offset */}
-          <div className="pl-4 sm:pl-6 md:pl-8 flex flex-col items-start gap-1">
-            <a href="#home" aria-label="VMS Home" className="block">
-              <img src="/logo.png" alt="Logo" className="h-16 w-auto" />
+    {/* Logo & ISO — truly left (no container padding) */}
+    {/* Logo & ISO — slight right offset */}
+<div className="pl-4 sm:pl-6 md:pl-8 flex flex-col items-start gap-1">
+  <a href="#home" aria-label="VMS Home" className="block">
+    <img src="/logo.png" alt="Logo" className="h-16 w-auto" />
+  </a>
+  <span className="px-4 py-1 rounded-full text-xs font-medium bg-[#1f4e79] text-white">
+    AN ISO 9001 : 2015 CERTIFIED COMPANY
+  </span>
+</div>
+
+
+    {/* spacer column */}
+    <div />
+
+    {/* Desktop Navigation (constrained, right-aligned) */}
+    <nav
+      className={`hidden lg:flex items-center gap-6 justify-end pr-4 md:pr-6 max-w-[1200px] w-full ml-auto
+        ${scrolled ? "text-black" : "text-white"} transition-colors duration-300`}
+    >
+      <a href="#home" className="hover:text-gray-500 rounded">Home</a>
+      <a href="#about" className="hover:text-gray-500 rounded">About Us</a>
+
+      {/* Products Dropdown */}
+      <div className="relative group">
+        <button className="hover:text-gray-500 rounded">Products</button>
+        <div className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-all duration-200 bg-white text-[#0a1a2f] rounded shadow-lg min-w-[220px] z-50">
+          <ul className="p-2">
+            {[
+              "Fresh, Frozen & Dry Provisions",
+              "Bonded Stores & Slop Chest",
+              "IT Equipments & Accessories",
+              "Deck & Engine Stores",
+              "Cabin & Galley Stores",
+              "Marine Spares, Lube Oil & Valves",
+              "Marine Chemicals & Gases",
+              "Marine Paints",
+              "Electrical Stores",
+              "Electronics & Navigational Supplies",
+              "Medical Stores",
+              "Water Treatment Systems",
+              "Other Supplies",
+            ].map((item) => (
+              <li key={item} className="px-4 py-1 hover:bg-gray-100 rounded whitespace-nowrap">
+                <a href="#products">{item}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Technical Services Dropdown */}
+      <div className="relative group">
+        <button className="hover:text-gray-500 rounded">Technical Services</button>
+        <div className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-all duration-200 bg-white text-[#0a1a2f] rounded shadow-lg min-w-[220px] z-50">
+          <ul className="p-2">
+            {[
+              "Hull and Structure Repairs",
+              "Engine and Propulsion Systems",
+              "Electrical and Automation Systems",
+              "Piping and Valve Systems",
+              "Deck and Cargo Equipment",
+              "Safety and Environmental Systems",
+              "Interior and Accommodation Services",
+              "Dry Docking and Survey Preparation",
+              "Ship Propulsion and Performance Optimization",
+              "Fleet Management and Consultancy",
+              "Crew Training and Support",
+              "Miscellaneous Services",
+            ].map((item) => (
+              <li key={item} className="px-4 py-1 hover:bg-gray-100 rounded whitespace-nowrap">
+                <a href="#services">{item}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <a href="#exports" className="hover:text-gray-500 rounded">Exports</a>
+      <a href="#enquiry" className="hover:text-gray-500 rounded">Enquiry</a>
+      <a href="#vendor" className="hover:text-gray-500 rounded">Vendor Registration</a>
+      <a href="#cta" className="hover:text-gray-500 rounded">Contact Us</a>
+    </nav>
+
+    {/* Mobile menu toggle (right) */}
+    <button
+      className="lg:hidden justify-self-end p-2 mr-4 md:mr-6 rounded"
+      aria-expanded={menuOpen}
+      aria-controls="mnav"
+      aria-label="Open menu"
+      onClick={() => setMenuOpen(!menuOpen)}
+    >
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" />
+      </svg>
+    </button>
+  </div>
+
+  {/* Mobile dropdown */}
+  <div className={`border-t border-gray-100 bg-white lg:hidden ${menuOpen ? "" : "hidden"}`}>
+    <div id="mnav" className="mx-auto max-w-[1200px] px-4 md:px-6 py-3 flex flex-col gap-2">
+      <a href="#home" className="py-2" onClick={() => setMenuOpen(false)}>Home</a>
+      <a href="#about" className="py-2" onClick={() => setMenuOpen(false)}>About Us</a>
+
+      <details className="group py-2">
+        <summary className="cursor-pointer select-none">Products</summary>
+        <div className="pl-4 mt-1 flex flex-col gap-1">
+          {[
+            "Fresh, Frozen & Dry Provisions",
+            "Bonded Stores & Slop Chest",
+            "IT Equipments & Accessories",
+            "Deck & Engine Stores",
+            "Cabin & Galley Stores",
+            "Marine Spares, Lube Oil & Valves",
+            "Marine Chemicals & Gases",
+            "Marine Paints",
+            "Electrical Stores",
+            "Electronics & Navigational Supplies",
+            "Medical Stores",
+            "Water Treatment Systems",
+            "Other Supplies",
+          ].map((item) => (
+            <a key={item} href="#products" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>
+              {item}
             </a>
-            <span className="px-4 py-1 rounded-full text-xs font-medium bg-[#1f4e79] text-white">
-              AN ISO 9001 : 2015 CERTIFIED COMPANY
-            </span>
-          </div>
-
-
-          {/* spacer column */}
-          <div />
-
-          {/* Desktop Navigation (constrained, right-aligned) */}
-          <nav
-            className={`hidden lg:flex items-center gap-6 justify-end pr-4 md:pr-6 max-w-[1200px] w-full ml-auto
-              ${scrolled ? "text-black" : "text-white"} transition-colors duration-300`}
-          >
-            <a href="#home" className="hover:text-gray-500 rounded">Home</a>
-            <a href="#about" className="hover:text-gray-500 rounded">About Us</a>
-
-            {/* Products Dropdown */}
-            <div className="relative group">
-              <button className="hover:text-gray-500 rounded">Products</button>
-              <div className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-all duration-200 bg-white text-[#0a1a2f] rounded shadow-lg min-w-[220px] z-50">
-                <ul className="p-2">
-                  {[
-                    "Fresh, Frozen & Dry Provisions",
-                    "Bonded Stores & Slop Chest",
-                    "IT Equipments & Accessories",
-                    "Deck & Engine Stores",
-                    "Cabin & Galley Stores",
-                    "Marine Spares, Lube Oil & Valves",
-                    "Marine Chemicals & Gases",
-                    "Marine Paints",
-                    "Electrical Stores",
-                    "Electronics & Navigational Supplies",
-                    "Medical Stores",
-                    "Water Treatment Systems",
-                    "Other Supplies",
-                  ].map((item) => (
-                    <li key={item} className="px-4 py-1 hover:bg-gray-100 rounded whitespace-nowrap">
-                      <a href="#products">{item}</a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* Technical Services Dropdown */}
-            <div className="relative group">
-              <button className="hover:text-gray-500 rounded">Technical Services</button>
-              <div className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-all duration-200 bg-white text-[#0a1a2f] rounded shadow-lg min-w-[220px] z-50">
-                <ul className="p-2">
-                  {[
-                    "Hull and Structure Repairs",
-                    "Engine and Propulsion Systems",
-                    "Electrical and Automation Systems",
-                    "Piping and Valve Systems",
-                    "Deck and Cargo Equipment",
-                    "Safety and Environmental Systems",
-                    "Interior and Accommodation Services",
-                    "Dry Docking and Survey Preparation",
-                    "Ship Propulsion and Performance Optimization",
-                    "Fleet Management and Consultancy",
-                    "Crew Training and Support",
-                    "Miscellaneous Services",
-                  ].map((item) => (
-                    <li key={item} className="px-4 py-1 hover:bg-gray-100 rounded whitespace-nowrap">
-                      <a href="#services">{item}</a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <a href="#exports" className="hover:text-gray-500 rounded">Exports</a>
-            <a href="#enquiry" className="hover:text-gray-500 rounded">Enquiry</a>
-            <a href="#vendor" className="hover:text-gray-500 rounded">Vendor Registration</a>
-            <a href="#cta" className="hover:text-gray-500 rounded">Contact Us</a>
-          </nav>
-
-          {/* Mobile menu toggle (right) */}
-          <button
-            className="lg:hidden justify-self-end p-2 mr-4 md:mr-6 rounded"
-            aria-expanded={menuOpen}
-            aria-controls="mnav"
-            aria-label="Open menu"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" />
-            </svg>
-          </button>
+          ))}
         </div>
+      </details>
 
-        {/* Mobile dropdown */}
-        <div className={`border-t border-gray-100 bg-white lg:hidden ${menuOpen ? "" : "hidden"}`}>
-          <div id="mnav" className="mx-auto max-w-[1200px] px-4 md:px-6 py-3 flex flex-col gap-2">
-            <a href="#home" className="py-2" onClick={() => setMenuOpen(false)}>Home</a>
-            <a href="#about" className="py-2" onClick={() => setMenuOpen(false)}>About Us</a>
-
-            <details className="group py-2">
-              <summary className="cursor-pointer select-none">Products</summary>
-              <div className="pl-4 mt-1 flex flex-col gap-1">
-                {[
-                  "Fresh, Frozen & Dry Provisions",
-                  "Bonded Stores & Slop Chest",
-                  "IT Equipments & Accessories",
-                  "Deck & Engine Stores",
-                  "Cabin & Galley Stores",
-                  "Marine Spares, Lube Oil & Valves",
-                  "Marine Chemicals & Gases",
-                  "Marine Paints",
-                  "Electrical Stores",
-                  "Electronics & Navigational Supplies",
-                  "Medical Stores",
-                  "Water Treatment Systems",
-                  "Other Supplies",
-                ].map((item) => (
-                  <a key={item} href="#products" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>
-                    {item}
-                  </a>
-                ))}
-              </div>
-            </details>
-
-            <details className="group py-2">
-              <summary className="cursor-pointer select-none">Technical Services</summary>
-              <div className="pl-4 mt-1 flex flex-col gap-1">
-                {[
-                  "Hull and Structure Repairs",
-                  "Engine and Propulsion Systems",
-                  "Electrical and Automation Systems",
-                  "Piping and Valve Systems",
-                  "Deck and Cargo Equipment",
-                  "Safety and Environmental Systems",
-                  "Interior and Accommodation Services",
-                  "Dry Docking and Survey Preparation",
-                  "Ship Propulsion and Performance Optimization",
-                  "Fleet Management and Consultancy",
-                  "Crew Training and Support",
-                  "Miscellaneous Services",
-                ].map((item) => (
-                  <a key={item} href="#services" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>
-                    {item}
-                  </a>
-                ))}
-              </div>
-            </details>
-
-            <a href="#exports" className="py-2" onClick={() => setMenuOpen(false)}>Exports</a>
-            <a href="#enquiry" className="py-2" onClick={() => setMenuOpen(false)}>Enquiry</a>
-            <a href="#vendor" className="py-2" onClick={() => setMenuOpen(false)}>Vendor Registration</a>
-            <a href="#cta" className="py-2" onClick={() => setMenuOpen(false)}>Contact Us</a>
-          </div>
+      <details className="group py-2">
+        <summary className="cursor-pointer select-none">Technical Services</summary>
+        <div className="pl-4 mt-1 flex flex-col gap-1">
+          {[
+            "Hull and Structure Repairs",
+            "Engine and Propulsion Systems",
+            "Electrical and Automation Systems",
+            "Piping and Valve Systems",
+            "Deck and Cargo Equipment",
+            "Safety and Environmental Systems",
+            "Interior and Accommodation Services",
+            "Dry Docking and Survey Preparation",
+            "Ship Propulsion and Performance Optimization",
+            "Fleet Management and Consultancy",
+            "Crew Training and Support",
+            "Miscellaneous Services",
+          ].map((item) => (
+            <a key={item} href="#services" className="py-1 pl-2 rounded hover:bg-gray-100" onClick={() => setMenuOpen(false)}>
+              {item}
+            </a>
+          ))}
         </div>
-      </header>
+      </details>
+
+      <a href="#exports" className="py-2" onClick={() => setMenuOpen(false)}>Exports</a>
+      <a href="#enquiry" className="py-2" onClick={() => setMenuOpen(false)}>Enquiry</a>
+      <a href="#vendor" className="py-2" onClick={() => setMenuOpen(false)}>Vendor Registration</a>
+      <a href="#cta" className="py-2" onClick={() => setMenuOpen(false)}>Contact Us</a>
+    </div>
+  </div>
+</header>
+
+
+
 
       <main id="main">
         {/* HERO — starts at very top; header overlays it */}
@@ -568,251 +491,265 @@ export default function Page() {
 
         {/* FULL-WIDTH MARQUEE — Roboto, black, bigger */}
         <section className="bg-white">
-          <div className="vms-ticker h-14 md:h-16 flex items-center px-4 md:px-6">
-            <div className="vms-track roboto">
-              {[
-                "Registered Supplier on the Government e-Marketplace (GeM)",
-                "Approved Vendor for Ministry of Defence",
-                "Authorized Distributor for GOA PAINTS Brand",
-              ].map((item, index) => (
-                <span
-                  key={index}
-                  className="text-lg md:text-xl font-medium mx-6 text-gray-600"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Intro */}
-        <section id="about" className="py-12 md:py-16 lg:py-20 bg-white">
-          <div className="mx-auto max-w-[1200px] px-4 md:px-6 grid gap-10 md:grid-cols-2 items-start">
-            
-            {/* Image column */}
-            <div className="order-1 md:order-2 flex justify-center md:justify-end">
-              <img
-                src="/lob.png"
-                alt="About Goa Paints"
-                className="w-full max-w-[200px] md:max-w-[350px] h-auto rounded-[12px] object-cover -mt-12 md:-mt-20"
-              />
-            </div>
-
-            {/* Text column */}
-            <div className="order-2 md:order-1 text-center md:text-left">
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold mb-2 text-[#13294b]">
-                Lorem ipsum dolor sit amet
-              </h2>
-              <p className="text-sm md:text-base leading-7 text-[#0a1a2f]/80">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer facilisis, lorem
-                non rutrum dictum, urna magna faucibus ante, at scelerisque sapien sapien a velit.
-                Sed vitae lorem at enim luctus gravida.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="relative text-white h-auto md:h-60 flex items-center py-6 md:py-0">
-          <div className="absolute inset-0 bg-[linear-gradient(120deg,#13294b,#1f4e79)]"></div>
-
-          <div className="relative mx-auto max-w-[1200px] px-4 md:px-6 flex flex-col md:flex-row items-center justify-between w-full gap-6">
-            
-            <div className="flex flex-col items-center md:items-start gap-3 text-center md:text-left">
-              <p className="text-lg md:text-xl">
-                Goa Paints Authorized Distributor, <span className="text-yellow-300 font-semibold">For more details</span>
-              </p>
-              <a
-                href="#"
-                className="text-white underline hover:text-yellow-300 transition"
-              >
-                Click here
-              </a>
-            </div>
-            {/* KPI image preview */}
-            <div className="relative group cursor-pointer mt-6 md:mt-0 flex justify-center md:justify-end w-full md:w-auto">
-              <img
-                src="/Certificate.jpg"
-                alt="KPI Preview"
-                className="w-40 md:w-50 h-40 md:h-50 object-contain rounded-lg transition-transform group-hover:scale-110"
-              />
-              {/* Hover preview popup */}
-              <div className="absolute right-0 top-12 hidden group-hover:block z-50">
-                <img
-                  src="/Certificate.jpg"
-                  alt="KPI Full Preview"
-                  className="w-[600px] md:w-[800px] h-auto rounded-lg shadow-lg border border-white/20"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Target section */}
-        <section
-          id="certificate-section"
-          className="w-full bg-white py-16"
+  <div className="vms-ticker h-14 md:h-16 flex items-center px-4 md:px-6">
+    <div className="vms-track roboto">
+      {[
+       "Registered Supplier on the Government e-Marketplace (GeM)",
+        "Approved Vendor for Ministry of Defence",
+        "Authorized Distributor for GOA PAINTS Brand",,
+      ].map((item, index) => (
+        <span
+          key={index}
+          className="text-lg md:text-xl font-medium mx-6 text-gray-600"
         >
-          <div className="mx-auto max-w-[1200px] px-4 md:px-6 text-center md:text-left">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#13294b] mb-6">
-              Certificate Details
-            </h2>
-            <p className="text-base md:text-lg text-[#0a1a2f]/80 leading-relaxed max-w-3xl mx-auto md:mx-0">
-              Here you can showcase the certificate details, provide information about your authorization, 
-              or display more images/documents related to Goa Paints.
-            </p>
-          </div>
-        </section>
+          {item}
+        </span>
+      ))}
+    </div>
+  </div>
+</section>
 
-        {/* Products */}
-        <section id="products" className="py-16 lg:py-20 bg-white">
-          <div className="mx-auto max-w-[1200px] px-4 md:px-6">
-            <div className="flex items-end justify-between mb-4">
-              <h3 className="text-lg md:text-xl font-semibold text-[#13294b]">
-                Products — Auto-scrolling — 2×2 image blocks ×14
-              </h3>
-              <div className="text-xs text-[#0a1a2f]/70">Auto scroll • Manual controls</div>
+
+{/* Intro */}
+<section id="about" className="py-12 md:py-16 lg:py-20 bg-white">
+  <div className="mx-auto max-w-[1200px] px-4 md:px-6 grid gap-10 md:grid-cols-2 items-start">
+    
+    {/* Image column */}
+    <div className="order-1 md:order-2 flex justify-center md:justify-end">
+      <img
+        src="/lob.png"
+        alt="About Goa Paints"
+        className="w-full max-w-[200px] md:max-w-[350px] h-auto rounded-[12px] object-cover -mt-12 md:-mt-20"
+      />
+    </div>
+
+    {/* Text column */}
+<div className="order-2 md:order-1 text-center md:text-left">
+  <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold mb-2 text-[#13294b]">
+    Lorem ipsum dolor sit amet
+  </h2>
+  <p className="text-sm md:text-base leading-7 text-[#0a1a2f]/80">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer facilisis, lorem
+    non rutrum dictum, urna magna faucibus ante, at scelerisque sapien sapien a velit.
+    Sed vitae lorem at enim luctus gravida.
+  </p>
+</div>
+
+
+  </div>
+</section>
+
+
+  <section className="relative text-white h-auto md:h-60 flex items-center py-6 md:py-0">
+  <div className="absolute inset-0 bg-[linear-gradient(120deg,#13294b,#1f4e79)]"></div>
+
+  <div className="relative mx-auto max-w-[1200px] px-4 md:px-6 flex flex-col md:flex-row items-center justify-between w-full gap-6">
+    
+    <div className="flex flex-col items-center md:items-start gap-3 text-center md:text-left">
+      <p className="text-lg md:text-xl">
+        Goa Paints Authorized Distributor, <span className="text-yellow-300 font-semibold">For more details</span>
+      </p>
+      <a
+        href="#"
+        className="text-white underline hover:text-yellow-300 transition"
+      >
+        Click here
+      </a>
+    </div>
+    {/* KPI image preview */}
+    <div className="relative group cursor-pointer mt-6 md:mt-0 flex justify-center md:justify-end w-full md:w-auto">
+      <img
+        src="/Certificate.jpg"
+        alt="KPI Preview"
+        className="w-40 md:w-50 h-40 md:h-50 object-contain rounded-lg transition-transform group-hover:scale-110"
+      />
+      {/* Hover preview popup */}
+      <div className="absolute right-0 top-12 hidden group-hover:block z-50">
+        <img
+          src="/Certificate.jpg"
+          alt="KPI Full Preview"
+          className="w-[600px] md:w-[800px] h-auto rounded-lg shadow-lg border border-white/20"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+{/* Target section */}
+<section
+  id="certificate-section"
+  className="w-full bg-white py-16"
+>
+  <div className="mx-auto max-w-[1200px] px-4 md:px-6 text-center md:text-left">
+    <h2 className="text-2xl md:text-3xl font-bold text-[#13294b] mb-6">
+      Certificate Details
+    </h2>
+    <p className="text-base md:text-lg text-[#0a1a2f]/80 leading-relaxed max-w-3xl mx-auto md:mx-0">
+      Here you can showcase the certificate details, provide information about your authorization, 
+      or display more images/documents related to Goa Paints.
+    </p>
+  </div>
+</section>
+
+
+{/* Products */}
+<section id="products" className="py-16 lg:py-20 bg-white">
+  <div className="mx-auto max-w-[1200px] px-4 md:px-6">
+    <div className="flex items-end justify-between mb-4">
+      <h3 className="text-lg md:text-xl font-semibold text-[#13294b]">
+        Products — scroll-snap — 2×2 image blocks ×14
+      </h3>
+      <div className="text-xs text-[#0a1a2f]/70">Manual scroll • inertial</div>
+    </div>
+
+    <div className="relative">
+      <div
+        id="prodTrack"
+        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hidden scroll-pl-6 scroll-pr-6 motion-safe:scroll-smooth"
+        role="list"
+      >
+        {Array.from({ length: 5 }).map((_, i) => (
+          <article
+            key={i}
+            className="snap-start shrink-0 w-[260px] bg-white rounded-xl shadow-[0_1px_2px_rgba(0,0,0,.06)] hover:shadow-[0_8px_18px_rgba(0,0,0,.14)] transition hover:scale-[1.02] focus-within:ring-2 ring-[#4fc3f7]"
+            role="article"
+            tabIndex={-1}
+          >
+            <div className="grid grid-cols-2 gap-1 aspect-[4/3] p-2">
+              <div className="rounded bg-[#E6F0FA]" />
+              <div className="rounded bg-[#D2E6F5]" />
+              <div className="rounded bg-[#EBF5FF]" />
+              <div className="rounded bg-[#DCEBFA]" />
             </div>
-
-            <div className="relative">
-              <div
-                id="prodTrack"
-                ref={productsTrackRef}
-                className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hidden scroll-pl-6 scroll-pr-6 motion-safe:scroll-smooth"
-                role="list"
-              >
-                {Array.from({ length: 14 }).map((_, i) => (
-                  <article
-                    key={i}
-                    className="snap-start shrink-0 w-[260px] bg-white rounded-xl shadow-[0_1px_2px_rgba(0,0,0,.06)] hover:shadow-[0_8px_18px_rgba(0,0,0,.14)] transition hover:scale-[1.02] focus-within:ring-2 ring-[#4fc3f7]"
-                    role="article"
-                    tabIndex={-1}
-                  >
-                    <AutoScrollingImages />
-                    <div className="p-3">
-                      <h4 className="font-semibold text-[#0a1a2f] text-sm">Product {i+1}</h4>
-                      <p className="text-xs text-[#0a1a2f]/70 mt-1">
-                        Lorem ipsum dolor sit amet elit sed do.
-                      </p>
-                      <button className="mt-3 text-[#2d6da3] text-sm underline underline-offset-2">
-                        → View details
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-
-              <div className="mt-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => scrollByStep("#prodTrack", -1)}
-                    className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
-                  >
-                    ◀
-                  </button>
-                  <button
-                    onClick={() => scrollByStep("#prodTrack", 1)}
-                    className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
-                  >
-                    ▶
-                  </button>
-                </div>
-                <span className="text-xs text-[#0a1a2f]/70">Auto-scrolling cards and images</span>
-              </div>
-
-              <div className="mt-4 flex items-center justify-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-slate-300" />
-                <span className="h-2 w-2 rounded-full bg-slate-300" />
-                <span className="h-2 w-2 rounded-full bg-slate-300" />
-              </div>
+            <div className="p-3">
+              <h4 className="font-semibold text-[#0a1a2f] text-sm">Lorem ipsum</h4>
+              <p className="text-xs text-[#0a1a2f]/70 mt-1">
+                Lorem ipsum dolor sit amet elit sed do.
+              </p>
+              <button className="mt-3 text-[#2d6da3] text-sm underline underline-offset-2">
+                → lorem
+              </button>
             </div>
-          </div>
-        </section>
+          </article>
+        ))}
+      </div>
 
-        {/* Technical Services */}
-        <section id="technicalServices" className="py-16 bg-gray-50">
-          <div className="mx-auto max-w-[1200px] px-4 md:px-6">
-            <div className="flex items-end justify-between mb-4">
-              <h3 className="text-2xl font-semibold text-gray-900">
-                Technical Services — Auto-scrolling — 2×2 image blocks ×12
-              </h3>
-              <div className="text-xs text-gray-700">Auto scroll • Manual controls</div>
-            </div>
+      <div className="mt-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => scrollByStep("#prodTrack", -1)}
+            className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
+          >
+            ◀
+          </button>
+          <button
+            onClick={() => scrollByStep("#prodTrack", 1)}
+            className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
+          >
+            ▶
+          </button>
+        </div>
+        <span className="text-xs text-[#0a1a2f]/70">Card 248–280 px • snap-start</span>
+      </div>
 
-            <div className="relative">
-              <div
-                id="servicesTrack"
-                ref={servicesTrackRef}
-                className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-pl-6 scroll-pr-6 motion-safe:scroll-smooth"
-                role="list"
-              >
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <article
-                    key={i}
-                    className="group relative snap-start shrink-0 w-64 bg-white rounded-xl shadow-md hover:shadow-lg transition hover:scale-[1.02]"
-                    role="article"
-                  >
-                    <AutoScrollingImages />
-                    <div className="p-3">
-                      <h4 className="font-semibold text-gray-900 text-sm">Service {i+1}</h4>
-                      <p className="text-xs text-gray-700 mt-1">Lorem ipsum dolor sit amet elit sed do.</p>
-                      <button className="mt-3 text-blue-600 text-sm underline underline-offset-2">→ View details</button>
-                    </div>
-                    <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition grid place-items-center rounded-xl bg-gray-900/70 text-white text-sm">
-                      Hover / Touch
-                    </div>
-                  </article>
-                ))}
-              </div>
+      <div className="mt-4 flex items-center justify-center gap-2">
+        <span className="h-2 w-2 rounded-full bg-slate-300" />
+        <span className="h-2 w-2 rounded-full bg-slate-300" />
+        <span className="h-2 w-2 rounded-full bg-slate-300" />
+      </div>
+    </div>
+  </div>
+</section>
 
-              <div className="mt-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => scrollByStep("#servicesTrack", -1)}
-                    className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
-                  >
-                    ◀
-                  </button>
-                  <button
-                    onClick={() => scrollByStep("#servicesTrack", 1)}
-                    className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
-                  >
-                    ▶
-                  </button>
-                </div>
-                <span className="text-xs text-gray-700">Auto-scrolling cards and images</span>
-              </div>
+<section id="technicalServices" className="py-16 bg-gray-50">
+  <div className="mx-auto max-w-[1200px] px-4 md:px-6">
+    <div className="flex items-end justify-between mb-4">
+      <h3 className="text-2xl font-semibold text-gray-900">
+        Technical Services — scroll-snap — 2×2 image blocks ×12
+      </h3>
+      <div className="text-xs text-gray-700">Manual scroll • inertial • Fallback grid (no JS)</div>
+    </div>
 
-              <div className="mt-4 flex items-center justify-center gap-2">
-                {Array.from({ length: 3 }).map((_, idx) => (
-                  <span key={idx} className="h-2 w-2 rounded-full bg-slate-300" />
-                ))}
-              </div>
+    <div className="relative">
+      <div
+        id="servicesTrack"
+        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-pl-6 scroll-pr-6 motion-safe:scroll-smooth"
+        role="list"
+      >
+        {Array.from({ length: 12 }).map((_, i) => (
+          <article
+            key={i}
+            className="group relative snap-start shrink-0 w-64 bg-white rounded-xl shadow-md hover:shadow-lg transition hover:scale-[1.02]"
+            role="article"
+          >
+            <div className="grid grid-cols-2 gap-1 aspect-[4/3] p-2">
+              <div className="rounded bg-[#E6F0FA]" />
+              <div className="rounded bg-[#D2E6F5]" />
+              <div className="rounded bg-[#EBF5FF]" />
+              <div className="rounded bg-[#DCEBFA]" />
             </div>
-          </div>
-        </section>
+            <div className="p-3">
+              <h4 className="font-semibold text-gray-900 text-sm">Lorem ipsum</h4>
+              <p className="text-xs text-gray-700 mt-1">Lorem ipsum dolor sit amet elit sed do.</p>
+              <button className="mt-3 text-blue-600 text-sm underline underline-offset-2">→ lorem</button>
+            </div>
+            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition grid place-items-center rounded-xl bg-gray-900/70 text-white text-sm">
+              Hover / Touch
+            </div>
+          </article>
+        ))}
+      </div>
 
-        {/* VM/CV/Principles */}
-        <section className="py-16 bg-white">
-          <div className="mx-auto max-w-[1200px] px-4 md:px-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
-              <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
-              <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
-            </div>
-            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
-              <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
-              <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
-            </div>
-            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
-              <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
-              <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
-            </div>
-            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
-              <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
-              <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
-            </div>
-          </div>
-        </section>
+      <div className="mt-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => scrollByStep("#servicesTrack", -1)}
+            className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
+          >
+            ◀
+          </button>
+          <button
+            onClick={() => scrollByStep("#servicesTrack", 1)}
+            className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
+          >
+            ▶
+          </button>
+        </div>
+        <span className="text-xs text-gray-700">Card 248–280 px • snap-start</span>
+      </div>
+
+      <div className="mt-4 flex items-center justify-center gap-2">
+        {Array.from({ length: 3 }).map((_, idx) => (
+          <span key={idx} className="h-2 w-2 rounded-full bg-slate-300" />
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+{/* VM/CV/Principles */}
+<section className="py-16 bg-white">
+  <div className="mx-auto max-w-[1200px] px-4 md:px-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
+      <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
+      <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
+    </div>
+    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
+      <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
+      <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
+    </div>
+    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
+      <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
+      <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
+    </div>
+    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
+      <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
+      <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
+    </div>
+  </div>
+</section>
+
+
 
         {/* CTA */}
         <section id="cta" className="py-20 relative">
@@ -828,7 +765,7 @@ export default function Page() {
                 Tell us what you need at your next port
               </h3>
               <p className="mt-1 text-sm text-[#0a1a2f]/70">
-                We'll respond within business hours with availability and ETA.
+                We’ll respond within business hours with availability and ETA.
               </p>
               <div ref={alertRef} className="hidden mt-4 p-3 rounded bg-green-50 text-green-800 text-sm" />
               <div className="mt-6 grid md:grid-cols-2 gap-4">
