@@ -392,7 +392,7 @@ const loadHero = async () => {
               ${scrolled ? "text-black" : "text-white"} transition-colors duration-300`}
           >
             <a href="#home" className="hover:text-gray-500 rounded">Home</a>
-            <a href="#about" className="hover:text-gray-500 rounded">About Us</a>
+            <a href="/about" className="hover:text-gray-500 rounded">About Us</a>
 
             {/* Products Dropdown */}
             <div className="relative group">
@@ -473,7 +473,7 @@ const loadHero = async () => {
         <div className={`border-t border-gray-100 bg-white lg:hidden ${menuOpen ? "" : "hidden"}`}>
           <div id="mnav" className="mx-auto max-w-[1200px] px-4 md:px-6 py-3 flex flex-col gap-2">
             <a href="#home" className="py-2" onClick={() => setMenuOpen(false)}>Home</a>
-            <a href="#about" className="py-2" onClick={() => setMenuOpen(false)}>About Us</a>
+            <a href="/about" className="py-2" onClick={() => setMenuOpen(false)}>About Us</a>
 
             <details className="group py-2">
               <summary className="cursor-pointer select-none">Products</summary>
