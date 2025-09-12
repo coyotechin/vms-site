@@ -524,16 +524,20 @@ export default function Page() {
     </div>
 
     {/* Text column */}
-    <div className="order-2 md:order-1">
-      <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold mb-2 text-[#13294b]">
-        Lorem ipsum dolor sit amet
-      </h2>
-      <p className="text-sm md:text-base leading-7 text-[#0a1a2f]/80">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer facilisis, lorem
-        non rutrum dictum, urna magna faucibus ante, at scelerisque sapien sapien a velit.
-        Sed vitae lorem at enim luctus gravida.
-      </p>
-    </div>
+
+
+<div className="order-2 md:order-1 text-center md:text-left">
+  <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold mb-2 text-[#13294b]">
+    Lorem ipsum dolor sit amet
+  </h2>
+  <p className="text-sm md:text-base leading-7 text-[#0a1a2f]/80">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer facilisis, lorem
+    non rutrum dictum, urna magna faucibus ante, at scelerisque sapien sapien a velit.
+    Sed vitae lorem at enim luctus gravida.
+  </p>
+</div>
+
+
 
   </div>
 </section>
@@ -722,6 +726,29 @@ export default function Page() {
           <span key={idx} className="h-2 w-2 rounded-full bg-slate-300" />
         ))}
       </div>
+    </div>
+  </div>
+</section>
+
+
+{/* VM/CV/Principles */}
+<section className="py-16 bg-white">
+  <div className="mx-auto max-w-[1200px] px-4 md:px-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
+      <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
+      <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
+    </div>
+    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
+      <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
+      <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
+    </div>
+    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
+      <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
+      <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
+    </div>
+    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-elev1 hover:shadow-elev2 hover:scale-105 transform transition duration-300">
+      <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100"></div>
+      <p className="mt-4 text-black text-sm leading-6">Lorem ipsum dolor sit amet, consectetur elit. Sed do eiusmod tempor incididunt.</p>
     </div>
   </div>
 </section>
