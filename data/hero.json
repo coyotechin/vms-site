@@ -1,19 +1,16 @@
 {
   "title": "Lorem vbchfghnbghvhjb",
   "subtitle": "Lorem dfhgfjhfytgjdnmcb",
-  "products": [
+  "slides": [
     {
-      "title": "shdsh",
-      "desc": "jdvjs",
-      "alt": "jdbvsb",
-      "images": [
-        "/uploads/1757612242554-agentprofile.png",
-        "/uploads/1757612242944-OIG2.jpeg",
-        "/uploads/1757612243364-image-removebg-preview_1_.png"
-      ]
+      "src": "/uploads/1757670590913-WhatsApp_Image_2025-09-12_at_15.19.36_26fc4f22.jpg",
+      "alt": "WhatsApp Image 2025-09-12 at 15.19.36_26fc4f22.jpg"
+    },
+    {
+      "src": "/uploads/1757670591285-WhatsApp_Image_2025-09-12_at_15.18.55_454d1530.jpg",
+      "alt": "WhatsApp Image 2025-09-12 at 15.18.55_454d1530.jpg"
     }
   ],
-  "technicalServices": [],
   "button1": {
     "text": "GET",
     "href": "#1234"
