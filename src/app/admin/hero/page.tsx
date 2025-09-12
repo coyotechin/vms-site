@@ -503,7 +503,7 @@ export default function AdminHeroPage() {
             disabled={saving}
             className="rounded bg-blue-600 text-white px-4 py-2 disabled:opacity-50"
           >
-            {saving ? "Saving..." : "Save changess"}
+            {saving ? "Saving..." : "Save changes"}
           </button>
         </div>
       </main>
