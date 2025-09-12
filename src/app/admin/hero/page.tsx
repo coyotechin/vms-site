@@ -1,51 +1,66 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Key, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Slide = { title?: string; desc?: string; alt?: string; images: string[] };
-type HeroConfig = {
-  title: string;
-  subtitle: string;
-  slides: string[];
-  products: Slide[];
-  technicalServices: Slide[];
-  button1: { text: string; href: string };
-  button2: { text: string; href: string };
+type Slide = { src: string; alt?: string };
+type Card = { 
+  title: string; 
+  desc: string; 
+  alt: string; 
+  images: string[] 
 };
 
 type SlideType = "products" | "technicalServices";
+
+type HeroConfig = {
+  title: string;
+  subtitle: string;
+
+  slides: Slide[];
+  products: Card[];
+  technicalServices: Card[];
+
+  button1: { text: string; href: string };
+  button2: { text: string; href: string };
+};
 
 const DEFAULT_CFG: HeroConfig = {
   title: "Lorem ipsum dolor sit amet consectetur.",
   subtitle:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  slides: ["/hero1.jpg", "/hero2.jpg"], // ✅ starter hero images
+
+  slides: [],
   products: [],
   technicalServices: [],
+
   button1: { text: "Get Quote", href: "#cta" },
   button2: { text: "View Catalogue", href: "#catalogues" },
 };
 
 export default function AdminHeroPage() {
   const router = useRouter();
+
   const [cfg, setCfg] = useState<HeroConfig>(DEFAULT_CFG);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState<Record<string, boolean>>({});
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // (Optional) simple guard for the demo
   useEffect(() => {
     if (typeof window === "undefined") return;
     const role = localStorage.getItem("role");
     const legacyAdmin = localStorage.getItem("isAdmin") === "true";
-    if (role !== "admin" && !legacyAdmin) router.replace("/login");
+    if (role !== "admin" && !legacyAdmin) {
+      router.replace("/login");
+    }
   }, [router]);
 
   const logout = () => {
     try {
       localStorage.removeItem("role");
       localStorage.removeItem("email");
-      localStorage.removeItem("isAdmin");
+      localStorage.removeItem("isAdmin"); // legacy flag
     } catch {}
     router.push("/login");
   };
@@ -66,11 +81,8 @@ export default function AdminHeroPage() {
         const data = await fetchJson("/api/hero");
         const merged: HeroConfig = {
           title: typeof data?.title === "string" ? data.title : DEFAULT_CFG.title,
-          subtitle:
-            typeof data?.subtitle === "string"
-              ? data.subtitle
-              : DEFAULT_CFG.subtitle,
-          slides: Array.isArray(data?.slides) ? data.slides : [], // ✅ always array
+          subtitle: typeof data?.subtitle === "string" ? data.subtitle : DEFAULT_CFG.subtitle,
+          slides: Array.isArray(data?.slides) ? data.slides : [],
           products: Array.isArray(data?.products) ? data.products : [],
           technicalServices: Array.isArray(data?.technicalServices)
             ? data.technicalServices
@@ -86,16 +98,12 @@ export default function AdminHeroPage() {
     })();
   }, []);
 
-  const uploadCardImages = async (
-    files: FileList | null,
-    type: SlideType,
-    cardIndex: number
-  ) => {
-    if (!files?.length) return;
-    setUploading((u) => ({ ...u, [type]: true }));
+  const uploadFiles = async (files: FileList | null) => {
+    if (!files || !files.length) return;
+    setUploading(true);
     setError(null);
     try {
-      const urls: string[] = [];
+      const newSlides: Slide[] = [];
       for (const f of Array.from(files)) {
         const fd = new FormData();
         fd.append("file", f);
@@ -104,67 +112,56 @@ export default function AdminHeroPage() {
           throw new Error(await res.text());
         });
         if (!res.ok || !data?.ok) throw new Error(data?.error || "Upload failed");
-        urls.push(data.src);
+        newSlides.push({ src: data.src, alt: f.name });
       }
-      setCfg((p) => {
-        const arr = [...p[type]];
-        arr[cardIndex] = {
-          ...arr[cardIndex],
-          images: [...(arr[cardIndex].images || []), ...urls],
-        };
-        return { ...p, [type]: arr };
-      });
+      setCfg((p) => ({ ...p, slides: [...p.slides, ...newSlides] }));
     } catch (e: any) {
       setError(e?.message || "Upload failed");
     } finally {
-      setUploading((u) => ({ ...u, [type]: false }));
+      setUploading(false);
     }
   };
 
-  const uploadHeroImages = async (files: FileList | null) => {
-    if (!files?.length) return;
-    setUploading((u) => ({ ...u, hero: true }));
-    setError(null);
-    try {
-      const urls: string[] = [];
-      for (const f of Array.from(files)) {
-        const fd = new FormData();
-        fd.append("file", f);
-        const res = await fetch("/api/hero/upload", { method: "POST", body: fd });
-        const data = await res.json().catch(async () => {
-          throw new Error(await res.text());
-        });
-        if (!res.ok || !data?.ok) throw new Error(data?.error || "Upload failed");
-        urls.push(data.src);
-      }
-      setCfg((p) => ({ ...p, slides: [...(p.slides || []), ...urls] })); // ✅ safe append
-    } catch (e: any) {
-      setError(e?.message || "Upload failed");
-    } finally {
-      setUploading((u) => ({ ...u, hero: false }));
-    }
+  const removeAt = (i: number) =>
+    setCfg((p) => ({ ...p, slides: p.slides.filter((_, j) => j !== i) }));
+
+  const move = (i: number, dir: -1 | 1) => {
+    setCfg((p) => {
+      const arr = [...p.slides];
+      const j = i + dir;
+      if (j < 0 || j >= arr.length) return p;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+      return { ...p, slides: arr };
+    });
   };
 
-  const removeImage = (type: SlideType, cardIndex: number, imgIndex: number) =>
+  const updateAlt = (i: number, alt: string) =>
+    setCfg((p) => {
+      const arr = [...p.slides];
+      arr[i] = { ...arr[i], alt };
+      return { ...p, slides: arr };
+    });
+
+  const updateCard = (i: number, type: SlideType, field: keyof Card, value: string) => {
+    setCfg((p) => {
+      const arr = [...p[type]];
+      arr[i] = { ...arr[i], [field]: value };
+      return { ...p, [type]: arr };
+    });
+  };
+
+  const removeImage = (type: SlideType, cardIndex: number, imgIndex: number) => {
     setCfg((p) => {
       const arr = [...p[type]];
       arr[cardIndex] = {
         ...arr[cardIndex],
-        images: arr[cardIndex].images.filter((_, i) => i !== imgIndex),
+        images: arr[cardIndex].images.filter((_, i) => i !== imgIndex)
       };
       return { ...p, [type]: arr };
     });
+  };
 
-  const removeHeroImage = (imgIndex: number) =>
-    setCfg((p) => ({
-      ...p,
-      slides: (p.slides || []).filter((_, i) => i !== imgIndex),
-    }));
-
-  const removeCard = (i: number, type: SlideType) =>
-    setCfg((p) => ({ ...p, [type]: p[type].filter((_, j) => j !== i) }));
-
-  const moveCard = (i: number, dir: -1 | 1, type: SlideType) =>
+  const moveCard = (i: number, dir: -1 | 1, type: SlideType) => {
     setCfg((p) => {
       const arr = [...p[type]];
       const j = i + dir;
@@ -172,18 +169,42 @@ export default function AdminHeroPage() {
       [arr[i], arr[j]] = [arr[j], arr[i]];
       return { ...p, [type]: arr };
     });
+  };
 
-  const updateCard = (
-    i: number,
-    type: SlideType,
-    field: keyof Slide,
-    value: string
-  ) =>
-    setCfg((p) => {
-      const arr = [...p[type]];
-      arr[i] = { ...arr[i], [field]: value };
-      return { ...p, [type]: arr };
-    });
+  const uploadCardImages = async (files: FileList | null, type: SlideType, cardIndex: number) => {
+    if (!files || !files.length) return;
+    try {
+      const newImages: string[] = [];
+      for (const f of Array.from(files)) {
+        const fd = new FormData();
+        fd.append("file", f);
+        const res = await fetch("/api/hero/upload", { method: "POST", body: fd });
+        const data = await res.json().catch(async () => {
+          throw new Error(await res.text());
+        });
+        if (!res.ok || !data?.ok) throw new Error(data?.error || "Upload failed");
+        newImages.push(data.src);
+      }
+      
+      setCfg((p) => {
+        const arr = [...p[type]];
+        arr[cardIndex] = {
+          ...arr[cardIndex],
+          images: [...arr[cardIndex].images, ...newImages]
+        };
+        return { ...p, [type]: arr };
+      });
+    } catch (e: any) {
+      setError(e?.message || "Upload failed");
+    }
+  };
+
+  const removeCard = (type: SlideType, i: number) => {
+    setCfg((p) => ({ 
+      ...p, 
+      [type]: p[type].filter((_, j) => j !== i) 
+    }));
+  };
 
   const save = async () => {
     setSaving(true);
@@ -210,19 +231,27 @@ export default function AdminHeroPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <main className="mx-auto max-w-[1100px] p-6 text-gray-900">
+    <div className="bg-white text-black min-h-screen">
+      <main className="mx-auto max-w-[1100px] p-6 bg-white min-h-screen">
+        {/* Top bar with Logout */}
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Hero Admin</h1>
-            <p className="text-sm text-gray-700">
-              Upload / reorder slides and create product & service cards.
+            <h1 className="text-2xl font-bold text-black">Hero Admin</h1>
+            <p className="text-sm text-gray-600">
+              Upload / reorder slides and edit the hero texts & buttons.
             </p>
           </div>
           <button
             onClick={logout}
             className="inline-flex items-center gap-2 rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800"
+            aria-label="Logout"
+            title="Logout"
           >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" strokeWidth="2" />
+              <path d="M10 17l5-5-5-5" stroke="currentColor" strokeWidth="2" />
+              <path d="M15 12H3" stroke="currentColor" strokeWidth="2" />
+            </svg>
             Logout
           </button>
         </div>
@@ -233,67 +262,87 @@ export default function AdminHeroPage() {
           </div>
         )}
 
-        {/* Hero Slide Images */}
-        <section className="mt-6">
-          <h2 className="font-semibold">Hero Slides</h2>
-          <div className="mt-3 flex flex-wrap gap-4">
-            {(cfg.slides || []).map((src, i) => (
-              <div key={i} className="relative">
-                <img
-                  src={src}
-                  alt=""
-                  className="w-40 h-24 object-cover rounded"
-                />
-                <button
-                  onClick={() => removeHeroImage(i)}
-                  className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full text-xs px-1"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-          <label className="inline-flex items-center gap-2 text-sm rounded bg-slate-900 text-white px-3 py-2 cursor-pointer mt-3">
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={(e) => uploadHeroImages(e.target.files)}
-            />
-            {uploading.hero ? "Uploading..." : "Upload Hero Images"}
-          </label>
-        </section>
-
         {/* Hero text */}
         <section className="mt-6 space-y-4">
-          <h2 className="font-semibold">Hero Text</h2>
-          <label className="grid gap-1 text-sm">
-            Title
+          <h2 className="font-semibold text-black">Hero Text</h2>
+          <label className="grid gap-1 text-sm text-black">
+            Title (big line)
             <input
               value={cfg.title}
               onChange={(e) => setCfg((p) => ({ ...p, title: e.target.value }))}
-              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+              className="rounded-md border px-3 py-2 text-black bg-white"
             />
           </label>
-          <label className="grid gap-1 text-sm">
-            Subtitle
+          <label className="grid gap-1 text-sm text-black">
+            Subtitle (small line)
             <textarea
               rows={3}
               value={cfg.subtitle}
-              onChange={(e) =>
-                setCfg((p) => ({ ...p, subtitle: e.target.value }))
-              }
-              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+              onChange={(e) => setCfg((p) => ({ ...p, subtitle: e.target.value }))}
+              className="rounded-md border px-3 py-2 text-black bg-white"
             />
           </label>
+        </section>
+
+        {/* Slides */}
+        <section className="mt-8">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-black">Slides</h2>
+            <label className="inline-flex items-center gap-2 text-sm rounded bg-slate-900 text-white px-3 py-2 cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => uploadFiles(e.target.files)}
+              />
+              {uploading ? "Uploading..." : "Add images"}
+            </label>
+          </div>
+
+          {cfg.slides.length === 0 && (
+            <div className="mt-3 text-sm text-gray-500">
+              No slides yet — upload some images.
+            </div>
+          )}
+
+          <ul className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {cfg.slides.map((s, i) => (
+              <li key={s.src} className="rounded border border-slate-200 overflow-hidden bg-white">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={s.src} alt={s.alt || `Slide ${i + 1}`} className="w-full h-40 object-cover" />
+                <div className="p-2 space-y-2">
+                  <input
+                    placeholder="Alt text (optional)"
+                    value={s.alt || ""}
+                    onChange={(e) => updateAlt(i, e.target.value)}
+                    className="w-full rounded border px-2 py-1 text-sm text-black bg-white"
+                  />
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-gray-600 truncate">{s.src}</div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => move(i, -1)} className="px-2 py-1 text-xs rounded bg-slate-100 text-black">
+                        ←
+                      </button>
+                      <button onClick={() => move(i, 1)} className="px-2 py-1 text-xs rounded bg-slate-100 text-black">
+                        →
+                      </button>
+                      <button onClick={() => removeAt(i)} className="px-2 py-1 text-xs rounded bg-red-100 text-red-700">
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </section>
 
         {/* Products + Services */}
         {(["products", "technicalServices"] as SlideType[]).map((type) => (
           <section key={type} className="mt-8">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-semibold capitalize">
+              <h2 className="font-semibold capitalize text-black">
                 {type === "products" ? "Products" : "Technical Services"}
               </h2>
               <button
@@ -349,13 +398,13 @@ export default function AdminHeroPage() {
                         className="hidden"
                         onChange={(e) => uploadCardImages(e.target.files, type, i)}
                       />
-                      {uploading[type] ? "Uploading..." : "Upload Images"}
+                      Add Images
                     </label>
                   </div>
 
                   {/* Image previews */}
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {(s.images || []).map((img, imgIndex) => (
+                    {s.images.map((img, imgIndex) => (
                       <div key={imgIndex} className="relative">
                         <img
                           src={img}
@@ -377,22 +426,22 @@ export default function AdminHeroPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => moveCard(i, -1, type)}
-                        className="px-2 py-1 text-xs rounded bg-slate-100"
+                        className="px-2 py-1 text-xs rounded bg-slate-100 text-black"
                       >
                         ←
                       </button>
                       <button
                         onClick={() => moveCard(i, 1, type)}
-                        className="px-2 py-1 text-xs rounded bg-slate-100"
+                        className="px-2 py-1 text-xs rounded bg-slate-100 text-black"
                       >
                         →
                       </button>
                     </div>
                     <button
-                      onClick={() => removeCard(i, type)}
+                      onClick={() => removeCard(type, i)}
                       className="px-2 py-1 text-xs rounded bg-red-100 text-red-700"
                     >
-                      Delete Card
+                      Delete
                     </button>
                   </div>
                 </article>
@@ -403,58 +452,46 @@ export default function AdminHeroPage() {
 
         {/* CTA Buttons */}
         <section className="mt-8">
-          <h2 className="font-semibold">CTA Buttons</h2>
+          <h2 className="font-semibold text-black">CTA Buttons</h2>
           <div className="mt-3 grid sm:grid-cols-2 gap-4">
-            <label className="grid gap-1 text-sm">
+            <label className="grid gap-1 text-sm text-black">
               Button 1 text
               <input
                 value={cfg.button1.text}
                 onChange={(e) =>
-                  setCfg((p) => ({
-                    ...p,
-                    button1: { ...p.button1, text: e.target.value },
-                  }))
+                  setCfg((p) => ({ ...p, button1: { ...p.button1, text: e.target.value } }))
                 }
-                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+                className="rounded-md border px-3 py-2 text-black bg-white"
               />
             </label>
-            <label className="grid gap-1 text-sm">
+            <label className="grid gap-1 text-sm text-black">
               Button 1 link
               <input
                 value={cfg.button1.href}
                 onChange={(e) =>
-                  setCfg((p) => ({
-                    ...p,
-                    button1: { ...p.button1, href: e.target.value },
-                  }))
+                  setCfg((p) => ({ ...p, button1: { ...p.button1, href: e.target.value } }))
                 }
-                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+                className="rounded-md border px-3 py-2 text-black bg-white"
               />
             </label>
-            <label className="grid gap-1 text-sm">
+            <label className="grid gap-1 text-sm text-black">
               Button 2 text
               <input
                 value={cfg.button2.text}
                 onChange={(e) =>
-                  setCfg((p) => ({
-                    ...p,
-                    button2: { ...p.button2, text: e.target.value },
-                  }))
+                  setCfg((p) => ({ ...p, button2: { ...p.button2, text: e.target.value } }))
                 }
-                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+                className="rounded-md border px-3 py-2 text-black bg-white"
               />
             </label>
-            <label className="grid gap-1 text-sm">
+            <label className="grid gap-1 text-sm text-black">
               Button 2 link
               <input
                 value={cfg.button2.href}
                 onChange={(e) =>
-                  setCfg((p) => ({
-                    ...p,
-                    button2: { ...p.button2, href: e.target.value },
-                  }))
+                  setCfg((p) => ({ ...p, button2: { ...p.button2, href: e.target.value } }))
                 }
-                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+                className="rounded-md border px-3 py-2 text-black bg-white"
               />
             </label>
           </div>
