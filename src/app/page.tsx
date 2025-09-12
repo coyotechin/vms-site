@@ -500,7 +500,7 @@ export default function Page() {
       ].map((item, index) => (
         <span
           key={index}
-          className="text-lg md:text-xl font-medium mx-6 text-gray-700"
+          className="text-lg md:text-xl font-medium mx-6 text-gray-600"
         >
           {item}
         </span>
@@ -510,172 +510,222 @@ export default function Page() {
 </section>
 
 
-        {/* Intro */}
-        <section id="about" className="py-12 md:py-16 lg:py-20">
-          <div className="mx-auto max-w-[1200px] px-4 md:px-6 grid gap-10 md:grid-cols-2 items-start">
-            <div>
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold mb-2 text-[#13294b]">
-                Lorem ipsum dolor sit amet
-              </h2>
-              <p className="text-sm md:text-base leading-7 text-[#0a1a2f]/80">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer facilisis, lorem
-                non rutrum dictum, urna magna faucibus ante, at scelerisque sapien sapien a velit.
-                Sed vitae lorem at enim luctus gravida.
+{/* Intro */}
+<section id="about" className="py-12 md:py-16 lg:py-20 bg-white">
+  <div className="mx-auto max-w-[1200px] px-4 md:px-6 grid gap-10 md:grid-cols-2 items-start">
+    
+    {/* Image column */}
+    <div className="order-1 md:order-2 flex justify-center md:justify-end">
+      <img
+        src="/lob.png"
+        alt="About Goa Paints"
+        className="w-full max-w-[200px] md:max-w-[350px] h-auto rounded-[12px] object-cover -mt-12 md:-mt-20"
+      />
+    </div>
+
+    {/* Text column */}
+    <div className="order-2 md:order-1">
+      <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold mb-2 text-[#13294b]">
+        Lorem ipsum dolor sit amet
+      </h2>
+      <p className="text-sm md:text-base leading-7 text-[#0a1a2f]/80">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer facilisis, lorem
+        non rutrum dictum, urna magna faucibus ante, at scelerisque sapien sapien a velit.
+        Sed vitae lorem at enim luctus gravida.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+
+  <section className="relative text-white h-auto md:h-60 flex items-center py-6 md:py-0">
+  <div className="absolute inset-0 bg-[linear-gradient(120deg,#13294b,#1f4e79)]"></div>
+
+  <div className="relative mx-auto max-w-[1200px] px-4 md:px-6 flex flex-col md:flex-row items-center justify-between w-full gap-6">
+    
+    <div className="flex flex-col items-center md:items-start gap-3 text-center md:text-left">
+      <p className="text-lg md:text-xl">
+        Goa Paints Authorized Distributor, <span className="text-yellow-300 font-semibold">For more details</span>
+      </p>
+      <a
+        href="#"
+        className="text-white underline hover:text-yellow-300 transition"
+      >
+        Click here
+      </a>
+    </div>
+    {/* KPI image preview */}
+    <div className="relative group cursor-pointer mt-6 md:mt-0 flex justify-center md:justify-end w-full md:w-auto">
+      <img
+        src="/Certificate.jpg"
+        alt="KPI Preview"
+        className="w-40 md:w-50 h-40 md:h-50 object-contain rounded-lg transition-transform group-hover:scale-110"
+      />
+      {/* Hover preview popup */}
+      <div className="absolute right-0 top-12 hidden group-hover:block z-50">
+        <img
+          src="/Certificate.jpg"
+          alt="KPI Full Preview"
+          className="w-[600px] md:w-[800px] h-auto rounded-lg shadow-lg border border-white/20"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+{/* Target section */}
+<section
+  id="certificate-section"
+  className="w-full bg-white py-16"
+>
+  <div className="mx-auto max-w-[1200px] px-4 md:px-6 text-center md:text-left">
+    <h2 className="text-2xl md:text-3xl font-bold text-[#13294b] mb-6">
+      Certificate Details
+    </h2>
+    <p className="text-base md:text-lg text-[#0a1a2f]/80 leading-relaxed max-w-3xl mx-auto md:mx-0">
+      Here you can showcase the certificate details, provide information about your authorization, 
+      or display more images/documents related to Goa Paints.
+    </p>
+  </div>
+</section>
+
+
+{/* Products */}
+<section id="products" className="py-16 lg:py-20 bg-white">
+  <div className="mx-auto max-w-[1200px] px-4 md:px-6">
+    <div className="flex items-end justify-between mb-4">
+      <h3 className="text-lg md:text-xl font-semibold text-[#13294b]">
+        Products — scroll-snap — 2×2 image blocks ×14
+      </h3>
+      <div className="text-xs text-[#0a1a2f]/70">Manual scroll • inertial</div>
+    </div>
+
+    <div className="relative">
+      <div
+        id="prodTrack"
+        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hidden scroll-pl-6 scroll-pr-6 motion-safe:scroll-smooth"
+        role="list"
+      >
+        {Array.from({ length: 5 }).map((_, i) => (
+          <article
+            key={i}
+            className="snap-start shrink-0 w-[260px] bg-white rounded-xl shadow-[0_1px_2px_rgba(0,0,0,.06)] hover:shadow-[0_8px_18px_rgba(0,0,0,.14)] transition hover:scale-[1.02] focus-within:ring-2 ring-[#4fc3f7]"
+            role="article"
+            tabIndex={-1}
+          >
+            <div className="grid grid-cols-2 gap-1 aspect-[4/3] p-2">
+              <div className="rounded bg-[#E6F0FA]" />
+              <div className="rounded bg-[#D2E6F5]" />
+              <div className="rounded bg-[#EBF5FF]" />
+              <div className="rounded bg-[#DCEBFA]" />
+            </div>
+            <div className="p-3">
+              <h4 className="font-semibold text-[#0a1a2f] text-sm">Lorem ipsum</h4>
+              <p className="text-xs text-[#0a1a2f]/70 mt-1">
+                Lorem ipsum dolor sit amet elit sed do.
               </p>
+              <button className="mt-3 text-[#2d6da3] text-sm underline underline-offset-2">
+                → lorem
+              </button>
             </div>
-            <div className="grid sm:grid-cols-2 gap-3 content-start">
-              <span className="bg-[#1f4e79] text-white text-sm px-3 py-2 rounded-[12px]">
-                ISO 9001:2015
-              </span>
-              <span className="bg-[#1f4e79] text-white text-sm px-3 py-2 rounded-[12px]">
-                Indian Navy Vendor
-              </span>
-              <span className="bg-[#3BAFDA] text-[#0a1a2f] text-sm px-3 py-2 rounded-[12px]">
-                24×7 • All Indian Ports
-              </span>
-              <span className="bg-[#3BAFDA] text-[#0a1a2f] text-sm px-3 py-2 rounded-[12px]">
-                UAE • Oman Partners
-              </span>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => scrollByStep("#prodTrack", -1)}
+            className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
+          >
+            ◀
+          </button>
+          <button
+            onClick={() => scrollByStep("#prodTrack", 1)}
+            className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
+          >
+            ▶
+          </button>
+        </div>
+        <span className="text-xs text-[#0a1a2f]/70">Card 248–280 px • snap-start</span>
+      </div>
+
+      <div className="mt-4 flex items-center justify-center gap-2">
+        <span className="h-2 w-2 rounded-full bg-slate-300" />
+        <span className="h-2 w-2 rounded-full bg-slate-300" />
+        <span className="h-2 w-2 rounded-full bg-slate-300" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="technicalServices" className="py-16 bg-gray-50">
+  <div className="mx-auto max-w-[1200px] px-4 md:px-6">
+    <div className="flex items-end justify-between mb-4">
+      <h3 className="text-2xl font-semibold text-gray-900">
+        Technical Services — scroll-snap — 2×2 image blocks ×12
+      </h3>
+      <div className="text-xs text-gray-700">Manual scroll • inertial • Fallback grid (no JS)</div>
+    </div>
+
+    <div className="relative">
+      <div
+        id="servicesTrack"
+        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-pl-6 scroll-pr-6 motion-safe:scroll-smooth"
+        role="list"
+      >
+        {Array.from({ length: 12 }).map((_, i) => (
+          <article
+            key={i}
+            className="group relative snap-start shrink-0 w-64 bg-white rounded-xl shadow-md hover:shadow-lg transition hover:scale-[1.02]"
+            role="article"
+          >
+            <div className="grid grid-cols-2 gap-1 aspect-[4/3] p-2">
+              <div className="rounded bg-[#E6F0FA]" />
+              <div className="rounded bg-[#D2E6F5]" />
+              <div className="rounded bg-[#EBF5FF]" />
+              <div className="rounded bg-[#DCEBFA]" />
             </div>
-          </div>
-        </section>
-
-        {/* Products */}
-        <section id="products" className="py-16 lg:py-20">
-          <div className="mx-auto max-w-[1200px] px-4 md:px-6">
-            <div className="flex items-end justify-between mb-4">
-              <h3 className="text-lg md:text-xl font-semibold text-[#13294b]">
-                Products — scroll-snap — 2×2 image blocks ×14
-              </h3>
-              <div className="text-xs text-[#0a1a2f]/70">Manual scroll • inertial</div>
+            <div className="p-3">
+              <h4 className="font-semibold text-gray-900 text-sm">Lorem ipsum</h4>
+              <p className="text-xs text-gray-700 mt-1">Lorem ipsum dolor sit amet elit sed do.</p>
+              <button className="mt-3 text-blue-600 text-sm underline underline-offset-2">→ lorem</button>
             </div>
-
-            <div className="relative">
-              <div
-                id="prodTrack"
-                className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hidden scroll-pl-6 scroll-pr-6 motion-safe:scroll-smooth"
-                role="list"
-              >
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <article
-                    key={i}
-                    className="snap-start shrink-0 w-[260px] bg-white rounded-xl shadow-[0_1px_2px_rgba(0,0,0,.06)] hover:shadow-[0_8px_18px_rgba(0,0,0,.14)] transition hover:scale-[1.02] focus-within:ring-2 ring-[#4fc3f7]"
-                    role="article"
-                    tabIndex={-1}
-                  >
-                    <div className="grid grid-cols-2 gap-1 aspect-[4/3] p-2">
-                      <div className="rounded bg-[#E6F0FA]" />
-                      <div className="rounded bg-[#D2E6F5]" />
-                      <div className="rounded bg-[#EBF5FF]" />
-                      <div className="rounded bg-[#DCEBFA]" />
-                    </div>
-                    <div className="p-3">
-                      <h4 className="font-semibold text-[#0a1a2f] text-sm">Lorem ipsum</h4>
-                      <p className="text-xs text-[#0a1a2f]/70 mt-1">
-                        Lorem ipsum dolor sit amet elit sed do.
-                      </p>
-                      <button className="mt-3 text-[#2d6da3] text-sm underline underline-offset-2">
-                        → lorem
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-
-              <div className="mt-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => scrollByStep("#prodTrack", -1)}
-                    className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
-                  >
-                    ◀
-                  </button>
-                  <button
-                    onClick={() => scrollByStep("#prodTrack", 1)}
-                    className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
-                  >
-                    ▶
-                  </button>
-                </div>
-                <span className="text-xs text-[#0a1a2f]/70">Card 248–280 px • snap-start</span>
-              </div>
-
-              <div className="mt-4 flex items-center justify-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-slate-300" />
-                <span className="h-2 w-2 rounded-full bg-slate-300" />
-                <span className="h-2 w-2 rounded-full bg-slate-300" />
-              </div>
+            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition grid place-items-center rounded-xl bg-gray-900/70 text-white text-sm">
+              Hover / Touch
             </div>
-          </div>
-        </section>
+          </article>
+        ))}
+      </div>
 
-        {/* Services */}
-        <section id="services" className="py-16 bg-[#ECF2F6]">
-          <div className="mx-auto max-w-[1200px] px-4 md:px-6">
-            <div className="flex items-end justify-between mb-4">
-              <h3 className="text-lg md:text-xl font-semibold text-[#13294b]">
-                Technical Services — scroll-snap — 2×2 image blocks ×12
-              </h3>
-              <div className="text-xs text-[#0a1a2f]/70">Manual scroll • inertial</div>
-            </div>
+      <div className="mt-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => scrollByStep("#servicesTrack", -1)}
+            className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
+          >
+            ◀
+          </button>
+          <button
+            onClick={() => scrollByStep("#servicesTrack", 1)}
+            className="px-3 py-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100"
+          >
+            ▶
+          </button>
+        </div>
+        <span className="text-xs text-gray-700">Card 248–280 px • snap-start</span>
+      </div>
 
-            <div className="relative">
-              <div
-                id="svcTrack"
-                className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hidden scroll-pl-6 scroll-pr-6 motion-safe:scroll-smooth"
-                role="list"
-              >
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <article
-                    key={i}
-                    className="snap-start shrink-0 w-[260px] bg-white rounded-xl shadow-[0_1px_2px_rgba(0,0,0,.06)] hover:shadow-[0_8px_18px_rgba(0,0,0,.14)] transition hover:scale-[1.02]"
-                    role="article"
-                  >
-                    <div className="grid grid-cols-2 gap-1 aspect-[4/3] p-2">
-                      <div className="rounded bg-[#E6F0FA]" />
-                      <div className="rounded bg-[#D2E6F5]" />
-                      <div className="rounded bg-[#EBF5FF]" />
-                      <div className="rounded bg-[#DCEBFA]" />
-                    </div>
-                    <div className="p-3">
-                      <h4 className="font-semibold text-[#0a1a2f] text-sm">Lorem ipsum</h4>
-                      <p className="text-xs text-[#0a1a2f]/70 mt-1">
-                        Lorem ipsum dolor sit amet elit sed do.
-                      </p>
-                      <button className="mt-3 text-[#2d6da3] text-sm underline underline-offset-2">
-                        → lorem
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
+      <div className="mt-4 flex items-center justify-center gap-2">
+        {Array.from({ length: 3 }).map((_, idx) => (
+          <span key={idx} className="h-2 w-2 rounded-full bg-slate-300" />
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
 
-              <div className="mt-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => scrollByStep("#svcTrack", -1)}
-                    className="px-3 py-2 rounded bg-white hover:bg-gray-50 border border-gray-100"
-                  >
-                    ◀
-                  </button>
-                  <button
-                    onClick={() => scrollByStep("#svcTrack", 1)}
-                    className="px-3 py-2 rounded bg-white hover:bg-gray-50 border border-gray-100"
-                  >
-                    ▶
-                  </button>
-                </div>
-                <span className="text-xs text-[#0a1a2f]/70">Keyboard focusable</span>
-              </div>
-
-              <div className="mt-4 flex items-center justify-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-slate-300" />
-                <span className="h-2 w-2 rounded-full bg-slate-300" />
-                <span className="h-2 w-2 rounded-full bg-slate-300" />
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* CTA */}
         <section id="cta" className="py-20 relative">
